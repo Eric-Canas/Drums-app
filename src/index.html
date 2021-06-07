@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+                      <!----------- Imports ------------>
+  <!-- Load Charts.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <!-- Load TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- Load Mathjs -->
+  <script src="https://unpkg.com/mathjs@9.2.0/lib/browser/math.js"> </script>
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <button id="save">Save Dataset</button>
+  <canvas id="chartCanvas" width="100" height="50"></canvas>
+  <video id= "webcamFrame" class="webcam"  autoplay="true" height="480" width="640" style="position: absolute; bottom: 10; left: 0;"> </video>
+  <canvas id="webcamCanvas" class="webcam" height="480" width="640" style="position: absolute; bottom: 10; left: 0;"></canvas>
+  <script type = "module" src="js/main.js"></script>
+</body>
+
+</html>
