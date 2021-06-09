@@ -1,6 +1,6 @@
 import keras
 import numpy as np
-from constants import *
+from utils.constants import *
 import os
 import tensorflow as tf
 import json
@@ -10,7 +10,7 @@ SEED = 0
 
 
 class HitDataset(keras.utils.Sequence):
-    def __init__(self, root_dir=DATASET_DIR, detections_before=2, detections_after=1, suavization_y_kernel = (0.3, 1., 0.3), training = True,
+    def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER, suavization_y_kernel = None, training = True,
                  batch_size = 128):
         # ----------------- ENSURE GPU USAGE -------------------------
         config = tf.compat.v1.ConfigProto()
@@ -21,7 +21,7 @@ class HitDataset(keras.utils.Sequence):
         self.root_dir = root_dir
         self.detections_before = detections_before
         self.chain_size = detections_before+1+detections_after
-        self.smoothing_y_kernel = np.array(suavization_y_kernel, dtype=np.float)
+        self.smoothing_y_kernel = np.array(suavization_y_kernel, dtype=np.float) if suavization_y_kernel is not None else None
         self.training = training
         self.batch_size = batch_size
         # ----------------- SPLITS TRAIN/VAL --------------------------
