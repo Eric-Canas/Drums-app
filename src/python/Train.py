@@ -6,9 +6,10 @@ import os
 from utils.Losses import loss
 from utils.constants import *
 from keras.metrics import BinaryAccuracy
+import tensorflowjs as tfjs
 
 
-def train(results_dir = RESULTS_DIR, epochs=EPOCHS, callbacks_period = 50):
+def train(results_dir = RESULTS_DIR, epochs=EPOCHS, callbacks_period = CALLBACKS_PERIOD):
     train_set, val_set = HitDataset(training=True), HitDataset(training=False)
     sample_x, _ = train_set[0]
     batch_size, n_steps, n_features = sample_x.shape
@@ -26,3 +27,4 @@ def train(results_dir = RESULTS_DIR, epochs=EPOCHS, callbacks_period = 50):
               callbacks=[checkpoint, plotting_callback, confusion_matrix_callback])
     model.save(os.path.join(results_dir, 'final_model.h5'))
     model.save_weights(os.path.join(results_dir, 'weights.h5'))
+    tfjs.converters.save_keras_model(model, os.path.join(results_dir, 'HitNetJS'))

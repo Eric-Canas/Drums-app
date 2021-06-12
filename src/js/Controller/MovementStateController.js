@@ -1,9 +1,11 @@
-import {MAX_FREQUENCY_IN_FRAMES, NOISE_KERNEL, HIT_WINDOW, RIGHT, LEFT, ROUGH_EPSION, MIN_TOP_TO_BOTTOM_HIT_DISTANCE} from "../Model/Constants.js";
+import {HIT_WINDOW, RIGHT, LEFT, ROUGH_EPSION, MIN_TOP_TO_BOTTOM_HIT_DISTANCE} from "../Model/Constants.js";
 import {splineFromArray} from "../Helpers/Utils.js"
+import {HitNet} from "../Model/HitNet.js"
 
 class MovementStateController{
     constructor(soundInterface, onStateUpdatedCallbacks = [], generateDatasetMode = false){
         this.maxQueueLength = HIT_WINDOW;
+        this.HitNet = new HitNet();
         this.rightHandTrack = [];
         this.leftHandTrack = [];
         this.soundInterface = soundInterface;
@@ -13,8 +15,8 @@ class MovementStateController{
 
     /*Pushes a pose in the buffer and calls all the callbacks*/
     async updateState(pose, fullHands){
-        if(RIGHT in pose){
-            this.rightHandTrack.push(pose[RIGHT].y);
+        if(RIGHT in fullHands){
+            this.rightHandTrack.push(fullHands[RIGHT].flat());
             if (this.rightHandTrack.length > this.maxQueueLength) {
                 this.rightHandTrack.shift();
                 this.isHit(this.rightHandTrack, 'drum');
@@ -23,8 +25,8 @@ class MovementStateController{
             this.rightHandTrack = []
         }
 
-        if(LEFT in pose){
-            this.leftHandTrack.push(pose[LEFT].y);
+        if(LEFT in fullHands){
+            this.leftHandTrack.push(fullHands[LEFT].flat());
             if (this.leftHandTrack.length > this.maxQueueLength) {
                 this.leftHandTrack.shift();
                 this.isHit(this.leftHandTrack, 'hihat');
@@ -37,8 +39,10 @@ class MovementStateController{
             callback(pose);
         }
     }
-    //TODO: Improve this shit
+
+
     async isHit(array, sound='hihat', splineFirst = false){
+        /*
         if(splineFirst){
             array = splineFromArray(array)
         }
@@ -63,11 +67,14 @@ class MovementStateController{
             }
             console.log("HIT: ");
             console.log(array);
-            this.soundInterface.playSound(sound);
-            return true;
-        } else {
-            return false;
-        }
+        */  
+       if(this.HitNet.isHit(array)){  
+        this.soundInterface.playSound(sound);
+        return true;
+       } else{
+           return false;
+       }
+
     }
 
 }

@@ -11,7 +11,7 @@ SEED = 0
 
 class HitDataset(keras.utils.Sequence):
     def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER, suavization_y_kernel = None, training = True,
-                 batch_size = 128):
+                 batch_size = BATCH_SIZE):
         # ----------------- ENSURE GPU USAGE -------------------------
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.force_gpu_compatible = True

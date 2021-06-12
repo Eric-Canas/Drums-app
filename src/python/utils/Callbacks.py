@@ -63,7 +63,7 @@ class ConfusionMatrix(Callback):
             y_true, y_pred = [], []
             for x, y in set:
                 y_true.append(y)
-                y_pred.append(self.model(x) > th)
+                y_pred.append(self.model.predict(x) > th)
             y_true, y_pred = np.concatenate(y_true).astype(np.int), np.concatenate(y_pred).astype(np.int)
             conf_mat = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true')
             plt.matshow(conf_mat)

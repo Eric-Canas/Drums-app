@@ -4,7 +4,7 @@ from utils.constants import *
 
 def build_hitnet(n_steps=N_STEPS, n_features=N_FEATURES, hidden_size=HIDDEN_SIZE, output_size = OUTPUT_SIZE, dropout=DROPOUT):
     model = Sequential()
-    model.add(LSTM(hidden_size, activation='relu', input_shape=(n_steps, n_features)))
+    model.add(LSTM(units=n_features, activation='relu', input_shape=(n_steps, n_features)))
     """
     for i in range(lstm_layers-1):
         model.add(LSTM(hidden_size, activation='relu'))
