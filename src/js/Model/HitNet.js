@@ -21,6 +21,8 @@ class HitNet{
             const tensor = tf.tensor3d([x]);// [] for declaring a first batch dimension of size 1
             let prediction = this.hitNet.predict(tensor);
             prediction = prediction.dataSync()[0];
+            console.log(prediction);
+            console.log(prediction > threshold)
             return prediction > threshold;
         } else {
             return false;
