@@ -65,8 +65,8 @@ class ConfusionMatrix(Callback):
                 y_true.append(y)
                 y_pred.append(self.model.predict(x) > th)
             y_true, y_pred = np.concatenate(y_true).astype(np.int), np.concatenate(y_pred).astype(np.int)
-            conf_mat = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true', vmin=0.0, vmax=1.0)
-            plt.matshow(conf_mat)
+            conf_mat = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true')
+            plt.matshow(conf_mat, vmin=0.0, vmax=1.0)
             plt.title('{set} - No Hit Acc: {n}% - Hit Acc: {m}%'.format(set=set_name, n=round(conf_mat[0,0]*100,2),
                                                                         m=round(conf_mat[1,1]*100,2)))
             plt.ylabel('Ground Truth')

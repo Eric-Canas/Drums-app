@@ -10,8 +10,10 @@ SEED = 0
 
 
 class HitDataset(keras.utils.Sequence):
-    def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER, suavization_y_kernel = None, training = True,
-                 batch_size = BATCH_SIZE, data_augmentation = DATA_AUGMENTATION, data_augmentation_ratio = DATA_AUGMENTATION_RATIO):
+    def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER,
+                 suavization_y_kernel = None, training = True, batch_size = BATCH_SIZE,
+                 data_augmentation = DATA_AUGMENTATION, data_augmentation_ratio = DATA_AUGMENTATION_RATIO,
+                 x_slide=DATA_AUG_X_SLIDE_RATIO, y_slide=DATA_AUG_Y_SLIDE_RATIO,  z_slide = DATA_AUG_Z_SLIDE_RATIO):
         # ----------------- ENSURE GPU USAGE -------------------------
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.force_gpu_compatible = True
@@ -37,9 +39,14 @@ class HitDataset(keras.utils.Sequence):
         np.random.shuffle(self.idxs)
         self.X, self.Y = self.X[self.idxs], self.Y[self.idxs]
         self.all_x_positions = np.arange(0, self.X.shape[-1], len('xyz'), dtype=np.int)
+        self.all_y_positions = np.arange(1, self.X.shape[-1], len('xyz'), dtype=np.int)
+        self.all_z_positions = np.arange(2, self.X.shape[-1], len('xyz'), dtype=np.int)
         self.all_batch_positions = np.arange(0, self.batch_size, dtype=np.int)
         self.data_augmentation = data_augmentation
         self.data_augmentation_ratio = min(data_augmentation_ratio*2, 1.0)
+        self.y_slide_ratio = y_slide
+        self.x_slide_ratio = x_slide
+        self.z_slide_ratio = z_slide
 
     def charge_dataset(self, files, root_dir=DATASET_DIR):
         """
@@ -81,14 +88,30 @@ class HitDataset(keras.utils.Sequence):
         return X, Y
 
     def batch_data_augmentation(self, X):
-        amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio)*self.batch_size)
+        X = self.horizontal_flip(X=X)
+        X = self.slide(X=X, idxs=self.all_x_positions, slide_ratio=self.x_slide_ratio)
+        X = self.slide(X=X, idxs=self.all_y_positions, slide_ratio=self.y_slide_ratio)
+        X = self.slide(X=X, idxs=self.all_z_positions, slide_ratio=self.z_slide_ratio)
+        return X
+
+    def horizontal_flip(self, X):
+        amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio) * self.batch_size)
         batch_positions = np.random.choice(self.all_batch_positions, size=amount, replace=False)
         # HORIZONTAL FLIP
         x_batch_entries = X[batch_positions]
-        x_batch_entries[..., self.all_x_positions] = np.abs(1-x_batch_entries[..., self.all_x_positions])
+        x_batch_entries[..., self.all_x_positions] = np.abs(1 - x_batch_entries[..., self.all_x_positions])
         X[batch_positions] = x_batch_entries
         return X
 
+    def slide(self, X, idxs, slide_ratio):
+        amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio) * self.batch_size)
+        batch_positions = np.random.choice(self.all_batch_positions, size=amount, replace=False)
+        slide = np.random.uniform(low=-slide_ratio, high=slide_ratio, size=amount)
+        # HORIZONTAL FLIP
+        x_batch_entries = X[batch_positions]
+        x_batch_entries[..., idxs] = x_batch_entries[..., idxs]+slide[..., None, None]
+        X[batch_positions] = x_batch_entries
+        return X
 
     def on_epoch_end(self):
         """
