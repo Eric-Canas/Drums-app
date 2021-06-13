@@ -11,7 +11,7 @@ SEED = 0
 
 class HitDataset(keras.utils.Sequence):
     def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER, suavization_y_kernel = None, training = True,
-                 batch_size = BATCH_SIZE):
+                 batch_size = BATCH_SIZE, data_augmentation = DATA_AUGMENTATION, data_augmentation_ratio = DATA_AUGMENTATION_RATIO):
         # ----------------- ENSURE GPU USAGE -------------------------
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.force_gpu_compatible = True
@@ -36,6 +36,10 @@ class HitDataset(keras.utils.Sequence):
         self.idxs = np.arange(0, len(self.X), dtype=np.int64)
         np.random.shuffle(self.idxs)
         self.X, self.Y = self.X[self.idxs], self.Y[self.idxs]
+        self.all_x_positions = np.arange(0, self.X.shape[-1], len('xyz'), dtype=np.int)
+        self.all_batch_positions = np.arange(0, self.batch_size, dtype=np.int)
+        self.data_augmentation = data_augmentation
+        self.data_augmentation_ratio = min(data_augmentation_ratio*2, 1.0)
 
     def charge_dataset(self, files, root_dir=DATASET_DIR):
         """
@@ -72,7 +76,18 @@ class HitDataset(keras.utils.Sequence):
     def __getitem__(self, idx):
         real_idx = idx*self.batch_size
         X, Y = self.X[real_idx: real_idx+self.batch_size], self.Y[real_idx: real_idx+self.batch_size]
+        if self.data_augmentation and self.training:
+            self.batch_data_augmentation(X=X)
         return X, Y
+
+    def batch_data_augmentation(self, X):
+        amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio)*self.batch_size)
+        batch_positions = np.random.choice(self.all_batch_positions, size=amount, replace=False)
+        # HORIZONTAL FLIP
+        x_batch_entries = X[batch_positions]
+        x_batch_entries[..., self.all_x_positions] = np.abs(1-x_batch_entries[..., self.all_x_positions])
+        X[batch_positions] = x_batch_entries
+        return X
 
 
     def on_epoch_end(self):

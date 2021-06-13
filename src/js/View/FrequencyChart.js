@@ -92,6 +92,7 @@ class FrequencyChart{
         if (dataLeft !== null){
             this.actualDataLeft.push(dataLeft);
             this.fullHandsLeft.push(fullHands[LEFT]);
+            console.log(fullHands[LEFT])
             this.currentLabelsLeft.push(0);
             if (this.actualDataLeft.length > MAX_FREQUENCY_IN_FRAMES){
                 this.actualDataLeft.shift();
@@ -99,6 +100,12 @@ class FrequencyChart{
                 this.datasetYLeft.push(this.currentLabelsLeft[0]); 
                 this.fullHandsLeft.shift();
                 this.currentLabelsLeft.shift();
+            }
+            if(dataRight === null){
+                this.chart.data.datasets[2].data.push(0);
+            }
+            if (this.chart.data.datasets[2].data.length > MAX_FREQUENCY_IN_FRAMES){
+                this.chart.data.datasets[2].data.shift();
             }
             this.chart.data.datasets[1].data = this.actualDataLeft;
 
