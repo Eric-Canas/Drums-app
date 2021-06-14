@@ -5,7 +5,7 @@ import os
 import tensorflow as tf
 import json
 
-training_percent = 0.85
+training_percent = 0.98
 SEED = 0
 
 

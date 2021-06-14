@@ -11,9 +11,9 @@ def build_hitnet(n_steps=N_STEPS, n_features=N_FEATURES, hidden_size=HIDDEN_SIZE
     """
     if dropout > 0.:
         model.add(Dropout(dropout))
-    model.add(Dense(hidden_size/2))
-    if dropout > 0.:
-        model.add(Dropout(dropout))
+    #model.add(Dense(hidden_size/2))
+    #if dropout > 0.:
+        #model.add(Dropout(dropout))
     model.add(Dense(output_size))
     model.add(Activation('sigmoid'))
     return model
