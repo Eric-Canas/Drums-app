@@ -1,3 +1,3 @@
 import {SessionController} from "./Controller/SessionController.js";
-//Set Controllers
+//Creates the Session Controller that manages the whole logic of the Drums application
 const sessionController = new SessionController();

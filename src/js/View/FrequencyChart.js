@@ -92,7 +92,6 @@ class FrequencyChart{
         if (dataLeft !== null){
             this.actualDataLeft.push(dataLeft);
             this.fullHandsLeft.push(fullHands[LEFT]);
-            console.log(fullHands[LEFT])
             this.currentLabelsLeft.push(0);
             if (this.actualDataLeft.length > MAX_FREQUENCY_IN_FRAMES){
                 this.actualDataLeft.shift();
