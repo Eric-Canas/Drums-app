@@ -68,6 +68,7 @@ class FrequencyChart{
 
     /* Updates the chart visualization by updating the data inside to 'new_data'*/
     updateChart(pose, fullHands){
+        
         const dataRight = this.poseToData(pose, RIGHT);
         
         if (dataRight !== null){

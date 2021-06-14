@@ -24,7 +24,7 @@
     //To avoid the creation of diverse SessionControllers, it is a singleton
     static instance;
 
-    constructor(endSessionButtonID = END_SESSION_BUTTON_ID, saveDatasetCanvasID = SAVE_DATASET_CANVAS_ID){
+    constructor(){
         if (this.constructor.instance){
             return instance
         } else {

@@ -1,18 +1,17 @@
 /**
  * Copyright (c) 2021
  *
- * Summary. Manages the loading and estimations of the PoseNet network
- * Description. The PoseNet Controller class charges is in charge of loading the PoseNet model,
- *              from the tensorflowjs hub, and constantly estimate a position for the current
- *              frame of the given videoStream. Additionally, every time a pose is detected,
+ * Summary. Manages the loading and estimations of the Hands Network
+ * Description. The HandPoseController class is in charge of loading the Hands model,
+ *              from the mediapipe hub, and constantly estimate a hands position from the current
+ *              frame of the given videoStream. Additionally, every time that a hand is detected,
  *              it executes the set of callbacks passed as argument in the constructor.
  * 
  * @author Eric Cañas <elcorreodeharu@gmail.com>
- * @file   This file defines the PoseNetController class.
+ * @file   This file defines the HandPoseController class.
  * @since  0.0.1
  */
 import {getRelevantPoseInfo, getHandsForTraining} from '../Helpers/Utils.js'
-import { COUNT_STD_FROM_PERCENTILE } from '../Model/Constants.js';
 
 class HandPoseController{
     /**
@@ -21,8 +20,9 @@ class HandPoseController{
      * @param {WebcamController} webcamController  : Controller of the webcam. Containing the videoStream information as well as other 
      *                                               webcam parameters such as the width and height of the video captured.
      * @param {Array} callbacksOnPoseCaptured : Array of callbacks containing the functions that must be triggered
-     *                                          every time that a pose is captured. Those callbacks must receive
-     *                                          as first argument a pose Object with the syntax {partName : {xPos, yPos}}.
+     *                                          every time that a gabd is captured. Those callbacks must receive
+     *                                          as first argument an array representing all 21 the [x, y, z] vectors 
+     *                                          for every hand landmark.
      */
     constructor(webcamController, callbacksOnPoseCaptured = []){
         this.webcamController = webcamController;
