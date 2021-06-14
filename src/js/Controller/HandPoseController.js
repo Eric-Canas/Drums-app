@@ -30,8 +30,7 @@ class HandPoseController{
         this.handsNet = null;
         this._disable = false;
         this._loadHandsNet();
-        this._poseEvent = new CustomEvent('posecaptured', {pose : this.lastPoseCaptured})
-        this.framesWithoutDetections = 0;
+        this._poseEvent = new CustomEvent('posecaptured')
         document.addEventListener('posecaptured', this.capturePose.bind(this), false);
     }
 
@@ -42,10 +41,8 @@ class HandPoseController{
             for (const callback of this.callbacksOnPoseCaptured){ 
                 callback(hands, fullHands);
             }
-            this.framesWithoutDetections = 0;
-        } else {
-            this.framesWithoutDetections++;
         }
+        //Set an small time out for avoiding the app to block.
         setTimeout(()=> document.dispatchEvent(this._poseEvent), 5);
     }
 

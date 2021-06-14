@@ -97,7 +97,6 @@ class HitDataset(keras.utils.Sequence):
     def horizontal_flip(self, X):
         amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio) * self.batch_size)
         batch_positions = np.random.choice(self.all_batch_positions, size=amount, replace=False)
-        # HORIZONTAL FLIP
         x_batch_entries = X[batch_positions]
         x_batch_entries[..., self.all_x_positions] = np.abs(1 - x_batch_entries[..., self.all_x_positions])
         X[batch_positions] = x_batch_entries
@@ -107,7 +106,6 @@ class HitDataset(keras.utils.Sequence):
         amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio) * self.batch_size)
         batch_positions = np.random.choice(self.all_batch_positions, size=amount, replace=False)
         slide = np.random.uniform(low=-slide_ratio, high=slide_ratio, size=amount)
-        # HORIZONTAL FLIP
         x_batch_entries = X[batch_positions]
         x_batch_entries[..., idxs] = x_batch_entries[..., idxs]+slide[..., None, None]
         X[batch_positions] = x_batch_entries

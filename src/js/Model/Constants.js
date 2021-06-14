@@ -65,7 +65,7 @@ const RIGHT = "Right";
 const HIT_WINDOW = 4;
 const NOISE_KERNEL = 3;
 const MIN_TOP_TO_BOTTOM_HIT_DISTANCE = 0.025;
-const IS_HIT_CONFIDENCE_THRESHOLD = 0.75;
+const IS_HIT_CONFIDENCE_THRESHOLD = 0.7;
 const HIT_NET_PATH = "http://127.0.0.1:8000/model.json"; 
 
 const RELEVANT_MARK = 7
