@@ -6,13 +6,14 @@ This web application is built with <a href="https://google.github.io/mediapipe/g
 The pipeline uses two Machine Learning models.
 <ul>
   <li> <a href="https://google.github.io/mediapipe/solutions/hands#javascript-solution-api" target="_blank"><b>Hands Model</b></a>: A Computer Vision model offered by <a href="https://google.github.io/mediapipe/getting_started/javascript.html" target="_blank"><img alt="MediPipe" title="MediPipe" src="https://raw.githubusercontent.com/google/mediapipe/master/docs/images/mediapipe_small.png" height=15></a> for detecting 21 landmarks for each hand (x, y, z).</li>
-  <li> <b>HitNet</b>: An LSTM model that has been developed in <a href="https://keras.io/" target="_blank"><img alt="Keras" title="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=flat&logo=Keras&logoColor=white" height=18></a> for this application and then converted to <a href=https://www.tensorflow.org/js target="_blank"><img alt="TensorFlow.js" title="TensorFlow.js" src="https://img.shields.io/static/v1?label=&message=Tensorflow.js&color=FF6000&logo=TensorFlow&logoColor=FFFFFF" height=18></a>. It takes the last N positions of a hand and predicts the probability of this sequence for corresponding with a Hit.</li>
+  <li> <b>HitNet</b>: An LSTM model that has been developed in <a href="https://keras.io/" target="_blank"><img alt="Keras" title="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=flat&logo=Keras&logoColor=white" height=20></a> for this application and then converted to <a href=https://www.tensorflow.org/js target="_blank"><img alt="TensorFlow.js" title="TensorFlow.js" src="https://img.shields.io/static/v1?label=&message=Tensorflow.js&color=FF6000&logo=TensorFlow&logoColor=FFFFFF" height=18></a>. It takes the last N positions of a hand and predicts the probability of this sequence for corresponding with a Hit.</li>
 </ul>
 
 
 ## HitNet Details
 
 ### Building Dataset
+
 The dataset used for training has been built in the following way:
 <ol>
   <li> A representative landmark (<i>Index Finger Dip [<b>Y</b>]</i>) of each detected hand is plotted in an interactive chart, using <a href=https://www.chartjs.org/ target="_blank"><img alt="Chart.js" title="Chart.js" src=https://img.shields.io/static/v1?label=&message=Chart.js&color=FF6384&logo=chart.js&logoColor=FFFFFF></a>.</li>
@@ -23,3 +24,11 @@ The dataset used for training has been built in the following way:
 </ol>
   <img alt="DatasetGeneration" title="DatasetGeneration" src="/documentation/DatasetGeneration.gif" height=350 align=left>
   <img alt="DataTag" title="DataTag" src="/documentation/DataTag.gif" height=350>
+  
+### Defining Architecture
+
+HitNet has been built in <a href=https://www.python.org/ target="_blank"><img alt="Python" title="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=3C78A9&logo=python&logoColor=FFFFFF" height=18></a>, using <a href="https://keras.io/" target="_blank"><img alt="Keras" title="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=flat&logo=Keras&logoColor=white" height=20></a>, and then exported to <a href=https://www.tensorflow.org/js target="_blank"><img alt="TensorFlow.js" title="TensorFlow.js" src="https://img.shields.io/static/v1?label=&message=Tensorflow.js&color=FF6000&logo=TensorFlow&logoColor=FFFFFF" height=18></a>. In order to not produce any dissonance between the hit on the drum and the produced sound HitNet must run as fast as possible, for this reason it implements an extremely simple architecture.
+
+<img alt="HitNet Architecture" title="HitNet Architecture" src="/documentation/HitNetArchitecture.png" height=350>
+
+It takes as input the 4 last detections of a hand [<i>Flatten version of its 21 landmarks (x,y,z)</i>] and outputs the probability of this sequence to correspond with a hit. It is only composed by an <i>LSTM</i> layer followed by a <i>ReLU</i> activation (using dropout with <i>p = 0.75</i>) and a <i>Dense</i> output layer with only 1 unit, followed by a <i>sigmoid</i> activation.
