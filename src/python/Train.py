@@ -1,6 +1,7 @@
 from HitDataset import HitDataset
 from models.HitNet import build_hitnet
 from keras.callbacks import ModelCheckpoint
+from keras.models import load_model
 from utils.Callbacks import PlotingCallback, ConfusionMatrix, RocAndPRCurvesCallback
 import os
 from utils.Losses import loss
@@ -28,4 +29,5 @@ def train(results_dir = RESULTS_DIR, epochs=EPOCHS, callbacks_period = CALLBACKS
               callbacks=[checkpoint, plotting_callback, confusion_matrix_callback, roc_curve])
     model.save(os.path.join(results_dir, 'final_model.h5'))
     model.save_weights(os.path.join(results_dir, 'weights.h5'))
-    tfjs.converters.save_keras_model(model, os.path.join(results_dir, 'HitNetJS'))
+
+    tfjs.converters.save_keras_model(load_model(os.path.join(results_dir,"best_model.h5"), {'loss' : loss}), os.path.join(results_dir, 'HitNetJS'))
