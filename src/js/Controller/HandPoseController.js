@@ -35,10 +35,11 @@ class HandPoseController{
     }
 
     async onResults(pose) {
-        const fullHands = getHandsForTraining(pose);
-        if (Object.keys(fullHands).length > 0){
+        //Convert it to the HandsNet format to a 2D Array
+        const results = getHandsForTraining(pose);
+        if (Object.keys(results).length > 0){
             for (const callback of this.callbacksOnPoseCaptured){ 
-                callback(fullHands);
+                callback(results);
             }
         }
         //Set an small time out for avoiding the app to block.
