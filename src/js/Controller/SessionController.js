@@ -11,7 +11,6 @@
  * @since  0.0.1
  */
 
- import {END_SESSION_BUTTON_ID, SAVE_DATASET_CANVAS_ID} from "../Model/Constants.js";
  import {WebcamController} from "../Controller/WebcamController.js";
  import {WebcamCanvas} from "../View/WebcamCanvas.js";
  import {MovementStateController} from "../Controller/MovementStateController.js";

@@ -15,14 +15,10 @@ function pathJoin(parts, sep){
 
 function getRelevantPoseInfo(handPoses, invertYAxis = INVERT_Y_AXIS){
   let hands = {};
-  if (handPoses.multiHandedness !== undefined){
-    for(const [i, hand] of handPoses.multiHandedness.entries()){
-      hands[hand.label] = handPoses.multiHandLandmarks[i][RELEVANT_MARK];
-      if (invertYAxis){
-        hands[hand.label].y = 1-hands[hand.label].y;
-      }
-    }
+  for (const [label, hand] of Object.entries(handPoses)){
+      hands[label] = invertYAxis? 1-hand[RELEVANT_MARK][1] : hand[RELEVANT_MARK][1] //1 is y.
   }
+  
   return hands;
 }
 
@@ -42,6 +38,16 @@ function getHandsForTraining(handPoses, invertYAxis = INVERT_Y_AXIS){
 }
 
 export{getHandsForTraining};
+
+function isPointInRect(x, y, box){
+    //Box is organized as x, y, height, width
+  const [xBox, yBox, heightBox, widthBox] = box;
+
+  return x > xBox && x <= xBox + widthBox &&
+               y > yBox && y <= yBox + heightBox;
+
+}
+export {isPointInRect}
 
 function splineFromArray(array, kernel_size = NOISE_KERNEL){
     if(NOISE_KERNEL <= 1){return array;}

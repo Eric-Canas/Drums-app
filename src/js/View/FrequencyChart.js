@@ -1,6 +1,7 @@
+//This file is only built for testing purposes as well as to generate dataset. It is a mess, but it will be deleted
 import {MAX_FREQ_RANGE, MAX_FREQUENCY_IN_FRAMES, RIGHT, LEFT} from "../Model/Constants.js";
 import {CHART_LINE_COLOR, CHART_BACKGROUND_COLOR, CHART_LINE_COLOR2, CHART_BACKGROUND_COLOR2, CHART_CANVAS_ID} from "../Model/Constants.js";
-import {saveJSON} from "../Helpers/Utils.js"
+import {saveJSON, getRelevantPoseInfo} from "../Helpers/Utils.js"
 
 class FrequencyChart{
     constructor(canvasID = CHART_CANVAS_ID, trainMode = true){
@@ -67,9 +68,9 @@ class FrequencyChart{
     }
 
     /* Updates the chart visualization by updating the data inside to 'new_data'*/
-    updateChart(pose, fullHands){
-        
-        const dataRight = this.poseToData(pose, RIGHT);
+    updateChart(fullHands){
+        const pose = getRelevantPoseInfo(fullHands);
+        const dataRight = pose.hasOwnProperty(RIGHT)? pose[RIGHT] : null;
         
         if (dataRight !== null){
             this.actualDataRight.push(dataRight);
@@ -89,7 +90,7 @@ class FrequencyChart{
             this.chart.data.datasets[0].data = this.actualDataRight;
         }
 
-        const dataLeft = this.poseToData(pose, LEFT);
+        const dataLeft = pose.hasOwnProperty(LEFT)? pose[LEFT] : null;
         if (dataLeft !== null){
             this.actualDataLeft.push(dataLeft);
             this.fullHandsLeft.push(fullHands[LEFT]);
@@ -118,7 +119,7 @@ class FrequencyChart{
 
     poseToData(pose, hand){
         if(pose.hasOwnProperty(hand)){
-            return pose[hand].y
+            return pose[hand]
         } else{
             return null;
         }

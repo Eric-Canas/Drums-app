@@ -11,7 +11,7 @@
  * @file   This file defines the HandPoseController class.
  * @since  0.0.1
  */
-import {getRelevantPoseInfo, getHandsForTraining} from '../Helpers/Utils.js'
+import {getHandsForTraining} from '../Helpers/Utils.js'
 
 class HandPoseController{
     /**
@@ -35,11 +35,10 @@ class HandPoseController{
     }
 
     async onResults(pose) {
-        const hands = getRelevantPoseInfo(pose);
         const fullHands = getHandsForTraining(pose);
-        if (Object.keys(hands).length > 0){
+        if (Object.keys(fullHands).length > 0){
             for (const callback of this.callbacksOnPoseCaptured){ 
-                callback(hands, fullHands);
+                callback(fullHands);
             }
         }
         //Set an small time out for avoiding the app to block.

@@ -1,10 +1,12 @@
 import {HIT_WINDOW, RIGHT, LEFT, ROUGH_EPSION, MIN_TOP_TO_BOTTOM_HIT_DISTANCE} from "../Model/Constants.js";
 import {HitNet} from "../Model/HitNet.js"
+import {SoundBoxes} from "../Controller/SoundBoxes.js"
 
 class MovementStateController{
     constructor(soundInterface, onStateUpdatedCallbacks = []){
         this.maxQueueLength = HIT_WINDOW;
         this.HitNet = new HitNet();
+        this.soundBoxes = new SoundBoxes();
         this.handTrack = {}; this.handTrack[RIGHT] = []; this.handTrack[LEFT] = [];
         this.withoutDetections = {}; this.withoutDetections[RIGHT] = 0; this.withoutDetections[LEFT] = 0;
         this.soundInterface = soundInterface;
@@ -12,14 +14,14 @@ class MovementStateController{
     }
 
     /*Pushes a pose in the buffer and calls all the callbacks*/
-    async updateState(pose, fullHands){
+    async updateState(fullHands){
         // Include them in the queue
         for (const hand of [RIGHT, LEFT]){
             if(hand in fullHands){
                 this.handTrack[hand].push(fullHands[hand].flat());
                 if (this.handTrack[hand].length > this.maxQueueLength) {
                     this.handTrack[hand].shift();
-                    this.isHit(this.handTrack[hand], 'hihat');
+                    this.isHit(hand, 'hihat');
                 }
                 this.withoutDetections[hand] = 0;
             } else {
@@ -33,8 +35,10 @@ class MovementStateController{
     }
 
 
-    async isHit(array, sound='hihat'){  
-       if(this.HitNet.isHit(array)){  
+    async isHit(hand, sound='hihat'){  
+       const array = this.handTrack[hand];
+       if(this.HitNet.isHit(array)){
+            this.handTrack[hand] = [];
             this.soundInterface.playSound(sound);
             return true;
        }else{
