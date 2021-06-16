@@ -80,5 +80,5 @@ const ROUGH_EPSION = 0.0025;
 export {EPSILON, ROUGH_EPSION};
 
 const MAXIMUM_SIMULTANEOUS_AUDIOS_PER_INSTRUMENT = 25;
-const AUDIO_FILES = {'hihat' : '../media/sounds/HiHatOpen2.mp3', 'drum' : '../media/sounds/drum1.mp3'};
+const AUDIO_FILES = {'hihat' : '../DrumsApp/media/sounds/HiHatOpen2.mp3', 'drum' : '../DrumsApp/media/sounds/drum1.mp3'};
 export {AUDIO_FILES, MAXIMUM_SIMULTANEOUS_AUDIOS_PER_INSTRUMENT};
