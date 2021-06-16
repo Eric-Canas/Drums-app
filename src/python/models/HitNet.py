@@ -2,7 +2,7 @@ from keras import Sequential
 from keras.layers import LSTM, Dropout, Dense, Activation
 from utils.constants import *
 
-def build_hitnet(n_steps=N_STEPS, n_features=N_FEATURES, hidden_size=HIDDEN_SIZE, output_size = OUTPUT_SIZE, dropout=DROPOUT):
+def build_hitnet(n_steps=N_STEPS, n_features=N_FEATURES, output_size = OUTPUT_SIZE, dropout=DROPOUT):
     model = Sequential()
     model.add(LSTM(units=n_features, activation='relu', input_shape=(n_steps, n_features)))
     """

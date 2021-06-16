@@ -37,7 +37,7 @@ class PlotingCallback(Callback):
         if not os.path.exists(path=path):
             os.mkdir(path=path)
 
-        name = label.title() + '. Tr-' + str(round(over_train[-1], 4)) + '. Val-' + str(round(over_val[-1], 4)) + '.png'
+        name = label.title() + '.png'
 
         plt.savefig(os.path.join(path, name))
         plt.close()
