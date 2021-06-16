@@ -35,7 +35,7 @@ It takes as input the 4 last detections of a hand [<i>Flatten version of its 21 
 
 ### Training the model
 
-HitNet has been training in <a href="https://keras.io/" target="_blank"><img alt="Keras" title="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=flat&logo=Keras&logoColor=white" height=20></a>, using the following parameterization:
+HitNet has been trained in <a href="https://keras.io/" target="_blank"><img alt="Keras" title="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=flat&logo=Keras&logoColor=white" height=20></a>, using the following parameterization:
 <ul>
   <li> <b>Epochs</b>: 3500.</li>
   <li> <b>Optimizer</b>: <a href="https://deepai.org/machine-learning-glossary-and-terms/adam-machine-learning" target="_blank">Adam</a>.</li>
