@@ -53,3 +53,21 @@ HitNet has been training in <a href="https://keras.io/" target="_blank"><img alt
 The weights exported to <a href=https://www.tensorflow.org/js target="_blank"><img alt="TensorFlow.js" title="TensorFlow.js" src="https://img.shields.io/static/v1?label=&message=Tensorflow.js&color=FF6000&logo=TensorFlow&logoColor=FFFFFF" height=18></a> are not the ones of the last epoch, but the ones that maximized the Validation Loss at any intermediate epoch.  
 
 *<i>Loss is weighted since the positive class is extremely underrepresented in the training set.</i>
+
+### Analyzing Results
+
+Confusion matrices show that results are pretty high for both classes putting the confidence threshold at 0.5.
+
+<img alt="Train Confusion Matrix" title="Train Confusion Matrix" src="/src/python/results/Train Confusion Matrix.png" width=40% align=left>
+<img alt="Validation Confusion Matrix" title="Validation Confusion Matrix" src="/src/python/results/Val Confusion Matrix.png" width=40%>
+
+Despite these <i>False Positives</i> and <i>False Negatives</i> could worsen the user experience in a network that is executed several times each second, it does not really affect the playtime in a real situation. It is due to three factors:
+<ol>
+  <li> Most <i>False Positives</i> come from the frames anterior or posterior to the hit. In practice, it is solved by emptying the sequence buffers every time that a hit is detected.</li>
+  <li> The small amount of <i>False Negatives</i> detected in the train set comes from <i>Data Augmentation</i> or because it is detected on the previous or the following frame. In real cases, these displacements does not affect to the experience.</li>
+  <li> The rest of <i>False Positives</i> does not use to appear in real cases since, during playtime, only the sequences including detections entering in the predefined drums are analyzed. In practice it works as <i>double check</i> for the positive cases.</li>
+</ol>
+
+Evolution of the <i>Train/Validation Loss</i> during training confirms that there has been no overfitting.
+
+<img alt="Loss" title="Loss" src="/src/python/results/Loss.png" width=40%>
