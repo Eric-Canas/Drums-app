@@ -1,8 +1,9 @@
 
 class Context {
-    constructor(menuID, canvasID, canvasScreenPercentage = 0.9) {
+    constructor(menuID, assingMenuID, canvasID, canvasScreenPercentage = 0.9) {
         // -------------------- INITIALIZE ELEMENTS -----------------------
         this.menu = document.getElementById(menuID);
+        this.assignMenu = document.getElementById(assingMenuID);
         this.canvas = document.getElementById(canvasID);
         this.canvasContext = this.canvas.getContext("2d");
         // ---------------- INITIALIZE CANVAS LISTENERS -------------------
@@ -22,7 +23,10 @@ class Context {
         this.keepAspectRatio = true;
         this.draggingElement = null;
         this.resizingPlace = null;
+        this.objectWasMoved = false;
+        this.prevent_next_click = false;
         this.fill_menu();
+        this.fill_assign_menu();
         
         // ------------------------ SET THE CANVAS -----------------------
         this.set_canvas_width_height();
@@ -37,18 +41,23 @@ class Context {
     }
 
     _on_document_left_click(event){
-        
-        if(!this._isVisible()){
-            this.open(event);
-        } else if (event.target == this.canvas || event.target.tagName == 'BODY'){
-            this.close();
+        if(!this.prevent_next_click){
+            const [elementUnderMouse, idx] = this.objectUnderMouse(event);
+            if (elementUnderMouse !== null){
+                this.open(event, this.assignMenu)
+            } else if(!this._isVisible()){
+                this.open(event, this.menu);
+            } else if (event.target == this.canvas || event.target.tagName == 'BODY'){
+                this.close();
+            }
+        }else{
+            this.prevent_next_click = false;
         }
     }
 
     _on_canvas_mouse_down(event){
         /* Decide if user wants to drag an existent object or not. */
         const [elementUnderMouse, idx] = this.objectUnderMouse(event);
-        console.log(elementUnderMouse);
         if (elementUnderMouse !== null){
             this.placedObjects.splice(idx, 1);
             const [x, y] = this.toCanvasXY(event);
@@ -56,40 +65,46 @@ class Context {
             this.draggingElement["x_click_offset"] = x-(elementUnderMouse["x"]*this.canvas.width);
             this.draggingElement["y_click_offset"] = y-(elementUnderMouse["y"]*this.canvas.height);
             this.resizingPlace = this.isMouseAtObjectCorner(event, elementUnderMouse)
+            this.objectWasMoved = false;
         }
     }
 
     _on_canvas_right_click(event){
         /* Check which menu needs to be open and opens it */
-        this.open(event);
+        const [objectUnderMouse, idx] = this.objectUnderMouse(event);   
+        if (objectUnderMouse === null){
+            this.open(event, this.menu);
+        } else {
+            this.open(event, this.assignMenu);
+        }
         event.preventDefault();
     }
 
-    _isVisible(){
+    _isVisible(menu){
         /* Returns if the menu is visible right now or not */
-        return this.menu.style.display !== 'none' && this.menu.style.display !== '' ;
+        return (this.menu.style.display !== 'none' && this.menu.style.display !== '') || (this.assignMenu.style.display !== 'none' && this.assignMenu.style.display !== '');
     }
 
 
-    open(event) {
+    open(event, menu) {
         /* Opens the menu in the right place for avoiding to overflow the canvas */
         if (event.y < window.innerHeight / 2) {
-            this.menu.style.bottom = "auto";
-            this.menu.style.top = `${event.y}px`;
+            menu.style.bottom = "auto";
+            menu.style.top = `${event.y}px`;
         } else {
-            this.menu.style.top = "auto";
-            this.menu.style.bottom = `${window.innerHeight - event.y}px`;
+            menu.style.top = "auto";
+            menu.style.bottom = `${window.innerHeight - event.y}px`;
         }
 
         if (event.x < window.innerWidth / 2) {
-            this.menu.style.right = "auto";
-            this.menu.style.left = `${event.x}px`;
+            menu.style.right = "auto";
+            menu.style.left = `${event.x}px`;
         } else {
-            this.menu.style.left = "auto";
-            this.menu.style.right = `${window.innerWidth - event.x}px`;
+            menu.style.left = "auto";
+            menu.style.right = `${window.innerWidth - event.x}px`;
         }
 
-        this.menu.style.display = "block";
+        menu.style.display = "block";
     }
 
     fill_menu(){
@@ -102,11 +117,23 @@ class Context {
             this.menu.appendChild(imgElement);
             this.available_objects.push({"img_name" : img_name, "img_element" : imgElement});
         }
+    }
 
+    fill_assign_menu(){
+        /* Fills the initial empty menu with the objects at the iconCorrespondences array */
+        for (const [option, callback] of Object.entries(assignOptions)){
+            let menuElement = document.createElement("div");
+            menuElement.className = "menuElement";
+            menuElement.textContent = option
+            menuElement.onclick = ((event) => callback(event)).bind(this);
+            this.assignMenu.appendChild(menuElement);
+            this.assignMenu.appendChild(document.createElement("hr")); //Put separator
+        }
     }
     
     close() {
         this.menu.style.display = "none";
+        this.assignMenu.style.display = "none"
     }
 
     _on_menu_img_mouse_down(event, idx, base_dimension = 0.2){
@@ -120,12 +147,15 @@ class Context {
         this.draggingElement["dimension_y"] = (this.draggingElement["img_element"].height/4)/Math.min(this.canvas.height, this.canvas.width);
         this.draggingElement["x_click_offset"] = 0;
         this.draggingElement["y_click_offset"] = 0;
+
         
     }
 
     _on_canvas_mouse_move(event){
         /* Move the dragging element (if any element is being drag) */
         if(this.draggingElement !== null){
+            this.close();
+            this.objectWasMoved = true;
             let [x, y , width, height] = [0, 0, 0, 0];
             if(this.resizingPlace !== null){
                 [x, y, width, height] = this.XYWidthHeightFromResizing(event, this.resizingPlace, this.draggingElement);
@@ -208,14 +238,15 @@ class Context {
             const xPercentage = x/this.canvas.width;
             const yPercentage = y/this.canvas.height;
             this.placedObjects.push({"x" : xPercentage, "y" : yPercentage, "dimension_x" : dimension_x, "dimension_y" : dimension_y,                                     
-                                     "img_element" : this.draggingElement["img_element"], "img_name" : this.draggingElement["img_name"]});
-            console.log({"x" : xPercentage, "y" : yPercentage, "dimension_x" : dimension_x, "dimension_y" : dimension_y,                                     
-            "img_element" : this.draggingElement["img_element"], "img_name" : this.draggingElement["img_name"]});                                     
+                                     "img_element" : this.draggingElement["img_element"], "img_name" : this.draggingElement["img_name"]});                                    
             //------- ERASE IT FROM THE INTERNAL VARIABLES -------
             this.draggingElement = null;
             this.resizingPlace = null;
-            this.menu.style.display = 'block' //prevent menu to re-apear
+            if (this.objectWasMoved){
+                this.prevent_next_click = true;
+            }
         }
+        this.objectWasMoved = false;
     }
 
     imgWidthHeightFromPercentage(dimension_x=0.2, dimension_y=0.2){
@@ -260,7 +291,7 @@ class Context {
                     increment = y_new_dimension/dimension_y;
                     x_new_dimension = dimension_x*increment;
                 }
-                y = (draggingElement.y-(y_new_dimension-dimension_y))*this.canvas.height;
+                y = ((draggingElement.y*this.canvas.height)-(y_new_dimension-dimension_y)*canvas_min_dim);
                 [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
                 break;
             // ------------------ BOTTOM-LEFT CORNER -----------------------
@@ -268,12 +299,10 @@ class Context {
                 [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
                 [newWidth, newHeight] = [(x-mouseX)+oldWidth, mouseY-y];
                 if ((newWidth - oldWidth) > (newHeight - oldHeight)){
-                    console.log("WIDTH");
                     x_new_dimension = newWidth/canvas_min_dim;
                     increment = x_new_dimension/dimension_x;
                     y_new_dimension = dimension_y*increment;
                 } else {
-                    console.log("HEIGHT");
                     y_new_dimension = newHeight/canvas_min_dim;
                     increment = y_new_dimension/dimension_y;
                     x_new_dimension = dimension_x*increment;
@@ -281,11 +310,43 @@ class Context {
                 x = (draggingElement.x*this.canvas.width)-((x_new_dimension-dimension_x)*canvas_min_dim);
                 [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
                 
-                console.log("oldWidth", oldWidth, "newWidth", newWidth, "oldX", draggingElement.x, "newX", x/this.canvas.width, 
-                "oldWidthPoint", draggingElement.x*this.canvas.width+oldWidth, "WithNewX", x+width, "dimensionDifference", (x_new_dimension-dimension_x));
                 break;
-            
-            
+            // ------------------- TOP-LEFT CORNER -------------------------
+            case "nw":
+                [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
+                [newWidth, newHeight] = [(x-mouseX)+oldWidth, (y+oldHeight)-mouseY];
+                if ((newWidth - oldWidth) > (newHeight - oldHeight)){
+                    x_new_dimension = newWidth/canvas_min_dim;
+                    increment = x_new_dimension/dimension_x;
+                    y_new_dimension = dimension_y*increment;
+                } else {
+                    y_new_dimension = newHeight/canvas_min_dim;
+                    increment = y_new_dimension/dimension_y;
+                    x_new_dimension = dimension_x*increment;
+                }
+                x = (draggingElement.x*this.canvas.width)-((x_new_dimension-dimension_x)*canvas_min_dim);
+                y = ((draggingElement.y*this.canvas.height)-(y_new_dimension-dimension_y)*canvas_min_dim);
+                [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
+                
+                break;
+            // -------------------- RIGHT SIDE ----------------------------
+            case "e":
+                [height, width] = [dimension_y*canvas_min_dim, mouseX-x];
+                break;
+            // ------------------- BOTTOM SIDE ----------------------------
+            case "s":
+                [height, width] = [mouseY-y, dimension_x*canvas_min_dim];
+                break;
+            // -------------------- LEFT SIDE -----------------------------
+            case "w":
+                [height, width] = [dimension_y*canvas_min_dim, dimension_x*canvas_min_dim+(x-mouseX)];
+                x = mouseX;
+                break;
+            // -------------------- TOP SIDE ------------------------------
+            case "n":
+                [height, width] = [dimension_y*canvas_min_dim+(y-mouseY), dimension_x*canvas_min_dim];
+                y = mouseY;
+                break;
         }
         return [x, y, width, height];
     }
