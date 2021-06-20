@@ -227,26 +227,65 @@ class Context {
     XYWidthHeightFromResizing(event, resizingPlace, draggingElement){
         /* TODO: AVOID OR SOLVE PROBLEM WITH X,Y negatives (mirroring) */
         const [mouseX, mouseY] = this.toCanvasXY(event);
-        let x, y, width, height, x_new_dimension, y_new_dimension;
+        let x, y, width, height, x_new_dimension, y_new_dimension, increment, newWidth, newHeight, oldWidth, oldHeight; 
+        const [dimension_x, dimension_y] = [draggingElement["dimension_x"], draggingElement["dimension_y"]];
+        const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
+        [x, y] = [draggingElement.x*this.canvas.width, draggingElement.y*this.canvas.height];
         switch(resizingPlace){
+            // ------------------ BOTTOM-RIGHT CORNER ---------------------
             case "se":
-                const [dimension_x, dimension_y] = [draggingElement["dimension_x"], draggingElement["dimension_y"]];
-                [x, y] = [draggingElement.x*this.canvas.width, draggingElement.y*this.canvas.height];
-                const [newWidth, newHeight] = [mouseX-x, mouseY-y];
-                const [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
-                const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
+                [newWidth, newHeight] = [mouseX-x, mouseY-y];
+                [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
                 if ((newWidth-oldWidth) > (newHeight - oldHeight)){
                     x_new_dimension = newWidth/canvas_min_dim;
-                    const increment = x_new_dimension/dimension_x;
+                    increment = x_new_dimension/dimension_x;
                     y_new_dimension = dimension_y*increment;
                 } else {
                     y_new_dimension = newHeight/canvas_min_dim;
-                    const increment = y_new_dimension/dimension_y;
+                    increment = y_new_dimension/dimension_y;
                     x_new_dimension = dimension_x*increment;
                 }
-
                 [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
                 break;
+            // ------------------- TOP-RIGHT CORNER ----------------------
+            case "ne":
+                [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
+                [newWidth, newHeight] = [mouseX-x, (y+oldHeight)-mouseY];
+                if ((newWidth-oldWidth) > (newHeight - oldHeight)){
+                    x_new_dimension = newWidth/canvas_min_dim;
+                    increment = x_new_dimension/dimension_x;
+                    y_new_dimension = dimension_y*increment;
+                } else {
+                    y_new_dimension = newHeight/canvas_min_dim;
+                    increment = y_new_dimension/dimension_y;
+                    x_new_dimension = dimension_x*increment;
+                }
+                y = (draggingElement.y-(y_new_dimension-dimension_y))*this.canvas.height;
+                [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
+                break;
+            // ------------------ BOTTOM-LEFT CORNER -----------------------
+            case "sw":
+                [oldWidth, oldHeight] = this.imgWidthHeightFromPercentage(dimension_x, dimension_y);
+                [newWidth, newHeight] = [(x-mouseX)+oldWidth, mouseY-y];
+                if ((newWidth - oldWidth) > (newHeight - oldHeight)){
+                    console.log("WIDTH");
+                    x_new_dimension = newWidth/canvas_min_dim;
+                    increment = x_new_dimension/dimension_x;
+                    y_new_dimension = dimension_y*increment;
+                } else {
+                    console.log("HEIGHT");
+                    y_new_dimension = newHeight/canvas_min_dim;
+                    increment = y_new_dimension/dimension_y;
+                    x_new_dimension = dimension_x*increment;
+                }
+                x = (draggingElement.x*this.canvas.width)-((x_new_dimension-dimension_x)*canvas_min_dim);
+                [width, height] = this.imgWidthHeightFromPercentage(x_new_dimension, y_new_dimension);
+                
+                console.log("oldWidth", oldWidth, "newWidth", newWidth, "oldX", draggingElement.x, "newX", x/this.canvas.width, 
+                "oldWidthPoint", draggingElement.x*this.canvas.width+oldWidth, "WithNewX", x+width, "dimensionDifference", (x_new_dimension-dimension_x));
+                break;
+            
+            
         }
         return [x, y, width, height];
     }
@@ -276,7 +315,7 @@ class Context {
         for (const element of this.placedObjects){
             const x = element.x*this.canvas.width;
             const y = element.y*this.canvas.height;
-            const [width, height] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"])
+            const [width, height] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"]);
             this.canvasContext.drawImage(element["img_element"], x, y, width, height);
         }
     }
