@@ -24,16 +24,16 @@
     </g>
   </svg>
 
-  <!--It will be the content-->
-  <div class="inner-header flex">
-    <button class="btn" type="button" onclick='location.href="public/playExperiment.html"'>
-      <span class="btn_text">Play</span>
-    </button>
-    <button class="btn" type="button">
-      <span class="btn_text">Set Template</span>
-    </button>
-  </div>
 </div>
+<canvas id="menuContainer" class="cnvs">
+</canvas>
+<div class="context-menu" id="menu">
+</div>
+    <script src='resources/resourceCorrespondence.js'></script>
+    <script src="contextMenu.js"></script>
+    <script>
+        const context = new Context("menu", "menuContainer");
+    </script>
   
 </body>
 </html>

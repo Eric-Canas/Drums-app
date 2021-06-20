@@ -1,16 +1,55 @@
 @import url(//fonts.googleapis.com/css?family=Lato:300:400);
 
+* {
+  margin:0;
+  padding:0; 
+} 
+
 body {
+  position: absolute;
   margin:0;
   overflow: hidden;
   background-color: #fff9b8;
+  height: 100%;
+  width: 100%;
 }
 
 p { /*For adding footers*/
   font-family: 'Lato', sans-serif;
   letter-spacing: 1px;
   font-size:14px;
-  color: #333333;
+  color: #333333; 
+}
+
+.cnvs {
+  display:block;
+  position:absolute;
+  top: 5%;
+  left: 5%;
+  background-color: white;
+}
+
+.context-menu {
+  display: none;
+  position: absolute;
+  top : 5%;
+  left: 5%;
+  width: "auto";
+  height: "auto";
+  background-color: rgba(127, 127, 127, 0.7);
+  border-radius: 0.25em;
+  font-family: sans-serif;
+}
+
+.context-menu img{
+  position: relative;
+  display: block;
+  margin : 1em;
+  width: 12em;
+}
+
+.context-menu img:hover{
+  cursor: pointer;
 }
 
 .buttons-div {
@@ -71,6 +110,7 @@ p { /*For adding footers*/
   left: 0;
 }
 
+
 .parallax > use { /* Animation */
   animation: move-forever 25s cubic-bezier(.55,.5,.45,.5)     infinite;
 }
@@ -108,5 +148,10 @@ p { /*For adding footers*/
     .btn:hover {
       background-color: #706c6a;
       width: 72%;
+    }
+
+    .context-menu img{
+      margin: 0.25em;
+      width: 8em;
     }
 }
