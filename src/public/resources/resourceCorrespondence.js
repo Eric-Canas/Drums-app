@@ -1,14 +1,47 @@
-const iconCorrespondeces = [{"img_name" : 'drum.png',
-                             "sounds" : ['bum']},
+let iconCorrespondeces = [{"img_name" : 'drum.png',
+                             "sounds" : ['bum', 'bom', 'bam'],
+                             "default_sound" : "bum"},
                              {"img_name" : 'hihat.png',
-                             "sounds" : ['hihat']}
+                             "sounds" : ['hihat', 'tsss'],
+                              "default_sound" : "hihat"
+                            }
                             ];
+const assignSoundButtonID = "AssingSoundButton";
 
-const assignOptions = {"Delete" : callback,
-                       "To Front" : callback,
-                       "To Back" : callback,
-                       "Assign Sound" : callback};
+//All these variables will have access to the canvas "this"
+const assignOptions = {"Delete" : {"onclick" : deleteCallback},
+                       "Assign Sound" : {"onclick" : openAssignSoundMenuClick, "onmouseenter" : openAssignSoundMenuEnter,
+                                        "onmouseout" : assignMenuOnMouseOut, "assignID" : assignSoundButtonID}
+                      };
 
-function callback(){
-    console.log("Calllllbaaack");
+let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'drum1.mp3', 'tssss' : 'drum1.mp3'};
+
+
+function deleteCallback(event){
+    //Selected object is always at the last position of placed objects 
+     this.placedObjects.pop();
+     this.close()
+ }
+
+function openAssignSoundMenuClick(event){
+    //Do Nothing
+}
+
+function openAssignSoundMenuEnter(event){
+    if(this.assignSoundMenu.style.display === 'none' || this.assignSoundMenu.style.display === ''){
+        this.openAssignSoundMenu()
+    }
+}
+
+function assignMenuOnMouseOut(event){
+    if(!event.toElement.classList.contains("sound")){
+        this.assignSoundMenuClose();
+    }
+}
+
+function reproduceSound(soundID, path='resources'){
+    console.log(soundID);
+    const sound = new Audio(`${path}/${soundCorrespondences[soundID]}`);
+    sound.play();
+
 }

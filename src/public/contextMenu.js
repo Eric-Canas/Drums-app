@@ -1,18 +1,20 @@
 
 class Context {
-    constructor(menuID, assingMenuID, canvasID, canvasScreenPercentage = 0.9) {
+    constructor(menuID, assingMenuID, assignSoundID, canvasID, canvasScreenPercentage = 0.9) {
         // -------------------- INITIALIZE ELEMENTS -----------------------
         this.menu = document.getElementById(menuID);
         this.assignMenu = document.getElementById(assingMenuID);
+        this.assignSoundMenu = document.getElementById(assignSoundID);
         this.canvas = document.getElementById(canvasID);
         this.canvasContext = this.canvas.getContext("2d");
+
         // ---------------- INITIALIZE CANVAS LISTENERS -------------------
         this.canvas.oncontextmenu = this._on_canvas_right_click.bind(this);
         this.canvas.onmousedown = this._on_canvas_mouse_down.bind(this);
         this.canvas.onmousemove = this._on_canvas_mouse_move.bind(this);
         this.canvas.onmouseup = this._on_canvas_mouse_up.bind(this);
-
-        document.addEventListener("click", this._on_document_left_click.bind(this), false);
+        this.assignSoundMenu.onmouseleave = this._on_assign_sound_mouse_out.bind(this)
+        document.onclick = this._on_document_left_click.bind(this);
         
         window.onresize = this.set_canvas_width_height.bind(this);
         
@@ -25,6 +27,7 @@ class Context {
         this.resizingPlace = null;
         this.objectWasMoved = false;
         this.prevent_next_click = false;
+        this.last_element_under_mouse = null;
         this.fill_menu();
         this.fill_assign_menu();
         
@@ -44,6 +47,7 @@ class Context {
         if(!this.prevent_next_click){
             const [elementUnderMouse, idx] = this.objectUnderMouse(event);
             if (elementUnderMouse !== null){
+                this.close();
                 this.open(event, this.assignMenu)
             } else if(!this._isVisible()){
                 this.open(event, this.menu);
@@ -58,6 +62,7 @@ class Context {
     _on_canvas_mouse_down(event){
         /* Decide if user wants to drag an existent object or not. */
         const [elementUnderMouse, idx] = this.objectUnderMouse(event);
+        this.last_element_under_mouse = elementUnderMouse;
         if (elementUnderMouse !== null){
             this.placedObjects.splice(idx, 1);
             const [x, y] = this.toCanvasXY(event);
@@ -69,8 +74,15 @@ class Context {
         }
     }
 
+    _on_assign_sound_mouse_out(event){
+        if(event.toElement.id !== assignSoundButtonID){
+            this.assignSoundMenuClose();
+        }
+    }
+
     _on_canvas_right_click(event){
         /* Check which menu needs to be open and opens it */
+        this.close();
         const [objectUnderMouse, idx] = this.objectUnderMouse(event);   
         if (objectUnderMouse === null){
             this.open(event, this.menu);
@@ -103,7 +115,6 @@ class Context {
             menu.style.left = "auto";
             menu.style.right = `${window.innerWidth - event.x}px`;
         }
-
         menu.style.display = "block";
     }
 
@@ -115,20 +126,99 @@ class Context {
             imgElement.src = `resources/${entry["img_name"]}`;
             imgElement.onmousedown = ((event) => this._on_menu_img_mouse_down(event, i)).bind(this);
             this.menu.appendChild(imgElement);
-            this.available_objects.push({"img_name" : img_name, "img_element" : imgElement});
+            this.available_objects.push({"img_name" : img_name, "img_element" : imgElement, "sounds" : entry["sounds"], "selected_sound" : entry["default_sound"]});
         }
     }
 
     fill_assign_menu(){
         /* Fills the initial empty menu with the objects at the iconCorrespondences array */
-        for (const [option, callback] of Object.entries(assignOptions)){
+        for (const [option, callbacks] of Object.entries(assignOptions)){
             let menuElement = document.createElement("div");
             menuElement.className = "menuElement";
             menuElement.textContent = option
-            menuElement.onclick = ((event) => callback(event)).bind(this);
+            //Bind to this context for accessing to its this variables
+            menuElement.onclick = ((event) => {callbacks["onclick"].call(this, event); 
+                                              this.drawCanvas(); 
+                                              this.prevent_next_click=true;}).bind(this);
+            if ( "onmouseenter" in callbacks){
+                menuElement.onmouseenter = ((event) => callbacks["onmouseenter"].call(this, event)).bind(this);
+            }
+            if ("onmouseout" in callbacks){
+                menuElement.onmouseout = ((event) => callbacks["onmouseout"].call(this, event)).bind(this);
+            }
+            if ("assignID" in callbacks){
+                menuElement.id = callbacks["assignID"]
+            }
             this.assignMenu.appendChild(menuElement);
-            this.assignMenu.appendChild(document.createElement("hr")); //Put separator
         }
+    }
+
+    fill_assign_sound_menu(){
+        let menuElement, soundText, playButton, playLogo, tick;
+        for (const sound of this.last_element_under_mouse["sounds"]){
+            menuElement = document.createElement("div");
+            menuElement.classList.add("menuElement", "sound", "selectable-sound");
+            menuElement.title = sound;
+            soundText = document.createElement("span");
+            soundText.classList.add("menuElement", "sound", "selectable-sound");
+            soundText.textContent = sound;
+            soundText.title = sound;
+            tick = document.createElement("span");
+            tick.classList.add("tick-mark", "selectable-sound");
+            tick.title = sound;
+            console.log(this.last_element_under_mouse)
+            if (this.last_element_under_mouse["selected_sound"] === sound){
+                tick.classList.add("checked");
+            }
+            //assign class checkmark to tick
+
+            playLogo = document.createElement("i");
+            playLogo.classList.add("fa", "fa-play", "fa-2x")
+            playButton = document.createElement("a");
+            playButton.className = 'round-button'
+            playButton.href = "#";
+            playButton.appendChild(playLogo);
+            //Bind to this context for accessing to its this variables
+            playButton.onclick = ((event) => {reproduceSound(sound)}).bind(this);
+            menuElement.onclick = ((event) => {if(event.target.classList.contains("selectable-sound")) this.select_sound(sound);}).bind(this);
+            menuElement.appendChild(playButton);
+            menuElement.appendChild(soundText);
+            menuElement.appendChild(tick);
+            this.assignSoundMenu.appendChild(menuElement);
+        }
+        menuElement = document.createElement("div");
+        menuElement.className = "menuElement";
+        menuElement.textContent = "Upload Sound"
+        //Bind to this context for accessing to its this variables
+        menuElement.onclick = ((event) => {console.log("Assign Sound Click (FILL IT)");}).bind(this);
+        this.assignSoundMenu.appendChild(menuElement);
+    }
+
+    select_sound(sound){
+        for (const element of document.getElementsByClassName("tick-mark")){
+            if (element.title === sound){
+                element.classList.add("checked");
+                this.placedObjects[this.placedObjects.length-1]["selected_sound"] = sound;
+                this.last_element_under_mouse["selected_sound"] = sound;
+            } else{
+                element.classList.remove("checked");
+            }
+        }
+    }
+
+    assignSoundMenuClose(){
+        while (this.assignSoundMenu.lastElementChild) {
+            this.assignSoundMenu.removeChild(this.assignSoundMenu.lastElementChild);
+        }
+        this.assignSoundMenu.style.display = "none"
+    }
+
+    openAssignSoundMenu(){
+        this.fill_assign_sound_menu();
+        const current_assign_menu_dim = this.assignMenu.getBoundingClientRect();
+        this.assignSoundMenu.style.display = "block";
+        this.assignSoundMenu.style.marginLeft = (current_assign_menu_dim.right-this.canvas.offsetLeft)+'px';
+        this.assignSoundMenu.style.marginTop = current_assign_menu_dim.y+'px';
     }
     
     close() {
@@ -147,7 +237,8 @@ class Context {
         this.draggingElement["dimension_y"] = (this.draggingElement["img_element"].height/4)/Math.min(this.canvas.height, this.canvas.width);
         this.draggingElement["x_click_offset"] = 0;
         this.draggingElement["y_click_offset"] = 0;
-
+        this.prevent_next_click = true;
+        this.last_element_under_mouse = this.draggingElement
         
     }
 
@@ -238,7 +329,8 @@ class Context {
             const xPercentage = x/this.canvas.width;
             const yPercentage = y/this.canvas.height;
             this.placedObjects.push({"x" : xPercentage, "y" : yPercentage, "dimension_x" : dimension_x, "dimension_y" : dimension_y,                                     
-                                     "img_element" : this.draggingElement["img_element"], "img_name" : this.draggingElement["img_name"]});                                    
+                                     "img_element" : this.draggingElement["img_element"], "img_name" : this.draggingElement["img_name"], "sounds" : this.draggingElement["sounds"],
+                                    "selected_sound" : this.draggingElement["selected_sound"]});
             //------- ERASE IT FROM THE INTERNAL VARIABLES -------
             this.draggingElement = null;
             this.resizingPlace = null;
@@ -247,6 +339,7 @@ class Context {
             }
         }
         this.objectWasMoved = false;
+        this.drawCanvas();
     }
 
     imgWidthHeightFromPercentage(dimension_x=0.2, dimension_y=0.2){
@@ -370,7 +463,11 @@ class Context {
         return [null, 0];
         
     }
-
+    drawCanvas(){
+        this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawCurrentObjects();
+        this.canvasContext.fill();
+    }
     drawCurrentObjects(){
         /*  Draws all the current placed objects in the canvas (fill() is not called. It should be called before)*/
         for (const element of this.placedObjects){

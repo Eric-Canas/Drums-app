@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Play Drums in your Browser</title>
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -31,10 +32,14 @@
 </div>
 <div class="context-menu" id="AssignMenu">
 </div>
+<div class="context-menu" id="AssignSound">
+</div>
+
+
     <script src='resources/resourceCorrespondence.js'></script>
     <script src="contextMenu.js"></script>
     <script>
-        const context = new Context("FiguresMenu", "AssignMenu", "menuContainer");
+        const context = new Context("FiguresMenu", "AssignMenu", "AssignSound", "menuContainer");
     </script>
   
 </body>
