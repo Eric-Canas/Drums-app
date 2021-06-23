@@ -7,7 +7,8 @@ let iconCorrespondeces = [{"img_name" : 'drum.png',
                             }
                             ];
 const assignSoundButtonID = "AssingSoundButton";
-
+const acceptedImgTypes = "image/*";
+const acceptedAudio = "audio/mp3";
 //All these variables will have access to the canvas "this"
 const assignOptions = {"Delete" : {"onclick" : deleteCallback},
                        "Assign Sound" : {"onclick" : openAssignSoundMenuClick, "onmouseenter" : openAssignSoundMenuEnter,
@@ -35,7 +36,7 @@ function openAssignSoundMenuEnter(event){
 
 function assignMenuOnMouseOut(event){
     if(!event.toElement.classList.contains("sound")){
-        this.assignSoundMenuClose();
+        this.removeMenuContent(this.assignSoundMenu);
     }
 }
 
@@ -43,5 +44,4 @@ function reproduceSound(soundID, path='resources'){
     console.log(soundID);
     const sound = new Audio(`${path}/${soundCorrespondences[soundID]}`);
     sound.play();
-
 }

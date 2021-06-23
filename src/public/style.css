@@ -46,7 +46,7 @@ p { /*For adding footers*/
   position: relative;
   display: block;
   padding : 0;
-  width: 12em;
+  width: 9em;
   
 }
 
@@ -54,6 +54,8 @@ p { /*For adding footers*/
   padding : 0.5em;
   border-radius: 0.25em;
 }
+
+
 
 .round-button {
 	box-sizing: border-box;
@@ -80,9 +82,9 @@ p { /*For adding footers*/
       transform: rotate(45deg);
       height: 10px;
       width: 4px;
-      margin-left: 50%;
-      border-bottom: 7px solid #78b13f;
-      border-right: 7px solid #78b13f;
+      margin-left: 40%;
+      border-bottom: 7px solid #29440f;
+      border-right: 7px solid #29440f;
     }
 
 .round-button:hover {

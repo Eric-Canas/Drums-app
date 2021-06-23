@@ -28,7 +28,7 @@ class Context {
         this.objectWasMoved = false;
         this.prevent_next_click = false;
         this.last_element_under_mouse = null;
-        this.fill_menu();
+        this.update_menu();
         this.fill_assign_menu();
         
         // ------------------------ SET THE CANVAS -----------------------
@@ -76,7 +76,7 @@ class Context {
 
     _on_assign_sound_mouse_out(event){
         if(event.toElement.id !== assignSoundButtonID){
-            this.assignSoundMenuClose();
+            this.removeMenuContent(this.assignSoundMenu);
         }
     }
 
@@ -118,16 +118,36 @@ class Context {
         menu.style.display = "block";
     }
 
-    fill_menu(){
+    update_menu(){
+        this.removeMenuContent(this.menu);
+        let imgElement;
+        this.available_objects = [];
         /* Fills the initial empty menu with the objects at the iconCorrespondences array */
         for (const [i, entry] of Object.entries(iconCorrespondeces)){
-            const imgElement = document.createElement("img");
             const img_name = entry["img_name"];
-            imgElement.src = `resources/${entry["img_name"]}`;
+            if ("imgElement" in entry){
+                imgElement = entry["imgElement"];
+            } else {
+                imgElement = document.createElement("img");
+                imgElement.src = `resources/${img_name}`;
+            }
             imgElement.onmousedown = ((event) => this._on_menu_img_mouse_down(event, i)).bind(this);
             this.menu.appendChild(imgElement);
-            this.available_objects.push({"img_name" : img_name, "img_element" : imgElement, "sounds" : entry["sounds"], "selected_sound" : entry["default_sound"]});
+            this.available_objects.push({"img_name" : img_name, "img_element" : imgElement, "sounds" : entry["sounds"],
+                                         "selected_sound" : entry["default_sound"]});
+            if ("imgElement" in entry){
+                this.available_objects[this.available_objects.length-1]["imgElement"] = imgElement
+            }
+
         }
+        let menuElement = document.createElement("div");
+            menuElement.className = "menuElement";
+            menuElement.textContent = "Upload Image";
+            menuElement.style.width = "auto";
+            //Bind to this context for accessing to its this variables
+            menuElement.onclick = this.uploadImage.bind(this);
+            this.menu.appendChild(menuElement);
+
     }
 
     fill_assign_menu(){
@@ -166,7 +186,6 @@ class Context {
             tick = document.createElement("span");
             tick.classList.add("tick-mark", "selectable-sound");
             tick.title = sound;
-            console.log(this.last_element_under_mouse)
             if (this.last_element_under_mouse["selected_sound"] === sound){
                 tick.classList.add("checked");
             }
@@ -190,7 +209,7 @@ class Context {
         menuElement.className = "menuElement";
         menuElement.textContent = "Upload Sound"
         //Bind to this context for accessing to its this variables
-        menuElement.onclick = ((event) => {console.log("Assign Sound Click (FILL IT)");}).bind(this);
+        menuElement.onclick = this.uploadAudio.bind(this);
         this.assignSoundMenu.appendChild(menuElement);
     }
 
@@ -206,11 +225,11 @@ class Context {
         }
     }
 
-    assignSoundMenuClose(){
-        while (this.assignSoundMenu.lastElementChild) {
-            this.assignSoundMenu.removeChild(this.assignSoundMenu.lastElementChild);
+    removeMenuContent(menu){
+        while (menu.lastElementChild) {
+            menu.removeChild(menu.lastElementChild);
         }
-        this.assignSoundMenu.style.display = "none"
+        menu.style.display = "none"
     }
 
     openAssignSoundMenu(){
@@ -220,7 +239,32 @@ class Context {
         this.assignSoundMenu.style.marginLeft = (current_assign_menu_dim.right-this.canvas.offsetLeft)+'px';
         this.assignSoundMenu.style.marginTop = current_assign_menu_dim.y+'px';
     }
+
+    uploadImage(){
+      const inputElement = document.getElementById('uploader')
+      inputElement.accept = acceptedImgTypes;
+      inputElement.click()
+      inputElement.onchange = (() => this.appendNewImgToMenu(inputElement.files[0])).bind(this);
+      
+    }
+
+    appendNewImgToMenu(imgURL){
+        const imgElement = document.createElement('img')
+        imgElement.src = URL.createObjectURL(imgURL);
+        iconCorrespondeces.push({"img_name" : imgURL, "sounds" : ['bum', 'bom', 'bam'],
+        "default_sound" : "bum", "imgElement" : imgElement});
+        this.update_menu()
+    }
+
     
+    uploadAudio(){
+        const inputElement = document.getElementById('uploader')
+        inputElement.accept = acceptedAudio;
+        inputElement.click()
+        console.log("Upload Audio");
+    }
+
+
     close() {
         this.menu.style.display = "none";
         this.assignMenu.style.display = "none"
