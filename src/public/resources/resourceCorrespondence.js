@@ -17,6 +17,14 @@ const assignOptions = {"Delete" : {"onclick" : deleteCallback},
 
 let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'drum1.mp3', 'tssss' : 'drum1.mp3'};
 
+function addSoundToImgName(img_name, soundName){
+    for (i in iconCorrespondeces){
+        if(iconCorrespondeces[i]["img_name"] === img_name){
+            iconCorrespondeces[i]["sounds"].push(soundName);
+            break;
+        }
+    }
+}
 
 function deleteCallback(event){
     //Selected object is always at the last position of placed objects 
@@ -25,7 +33,7 @@ function deleteCallback(event){
  }
 
 function openAssignSoundMenuClick(event){
-    //Do Nothing
+    //Do Ndthing
 }
 
 function openAssignSoundMenuEnter(event){
@@ -40,8 +48,16 @@ function assignMenuOnMouseOut(event){
     }
 }
 
-function reproduceSound(soundID, path='resources'){
-    console.log(soundID);
-    const sound = new Audio(`${path}/${soundCorrespondences[soundID]}`);
-    sound.play();
+function addMp3(name, blob){
+    console.log(name)
+    const sound = new Audio(blob);
+    soundCorrespondences[name] = sound;
+}
+
+async function reproduceSound(soundID, path='resources'){
+    if (typeof(soundCorrespondences[soundID]) === 'string'){
+        const sound = new Audio(`${path}/${soundCorrespondences[soundID]}`);
+        soundCorrespondences[soundID] = sound;
+    }
+    soundCorrespondences[soundID].cloneNode(false).play();
 }

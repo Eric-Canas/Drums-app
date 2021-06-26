@@ -261,7 +261,10 @@ class Context {
         const inputElement = document.getElementById('uploader')
         inputElement.accept = acceptedAudio;
         inputElement.click()
-        console.log("Upload Audio");
+        inputElement.onchange = (() => {const filename =  inputElement.files[0].name.substring(0, inputElement.files[0].name.length-".mp3".length)
+                                        addMp3(filename, URL.createObjectURL(inputElement.files[0]));
+                                        addSoundToImgName(this.last_element_under_mouse["img_name"], filename);
+                                        }).bind(this);
     }
 
 
@@ -282,8 +285,7 @@ class Context {
         this.draggingElement["x_click_offset"] = 0;
         this.draggingElement["y_click_offset"] = 0;
         this.prevent_next_click = true;
-        this.last_element_under_mouse = this.draggingElement
-        
+        this.last_element_under_mouse = this.draggingElement   
     }
 
     _on_canvas_mouse_move(event){
@@ -521,6 +523,4 @@ class Context {
             this.canvasContext.drawImage(element["img_element"], x, y, width, height);
         }
     }
-
-
 }
