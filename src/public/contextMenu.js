@@ -150,6 +150,9 @@ class Context {
             if(this.resizingPlace !== null){
                 let width, height;
                 [x, y, width, height] = this.XYWidthHeightFromResizing(event, this.resizingPlace, this.draggingElement);
+                if (width < 0 || height < 0){
+                    [x, y, width, height] = this.to_positive_coordinates(x, y, width, height);
+                }
                 this.draggingElement["dimension_x"] = width/Math.min(this.canvas.height, this.canvas.width);
                 this.draggingElement["dimension_y"] = height/Math.min(this.canvas.height, this.canvas.width);
             // Or its new X, Y coordinates if dragged 
@@ -161,10 +164,7 @@ class Context {
             const xPercentage = x/this.canvas.width;
             const yPercentage = y/this.canvas.height;
             delete this.draggingElement["x_click_offset"]; delete this.draggingElement["y_click_offset"];
-            console.log("Dragging ELement", this.draggingElement);
-            console.log("Previous Placed Objects", this.placedObjects);
             this.placedObjects.push({...this.draggingElement, "x" : xPercentage, "y" : yPercentage});
-            console.log("Placed Object", this.placedObjects);
             //------- ERASE IT FROM THE INTERNAL VARIABLES -------
             this.draggingElement = null;
             this.resizingPlace = null;
@@ -267,7 +267,6 @@ class Context {
             if ("assignID" in option) menuElement.id = option["assignID"];
             // Attach all the event listener for each option
             for (const [event, callback] of Object.entries(option["events"])){
-                console.log(event, callback);
                 menuElement.addEventListener(event, ((event) => callback.call(this, event)).bind(this));
             }
             // Attach the element to the menu
@@ -378,38 +377,117 @@ class Context {
 
         // Attach the logic to the onchange method, for executing it when the user selects a file
         inputElement.onchange = (() => {const filename =  inputElement.files[0].name.substring(0, inputElement.files[0].name.length-".mp3".length)
+                                        // Create the Audio object and attach it to its name
                                         addMp3(filename, URL.createObjectURL(inputElement.files[0]));
+                                        // Append it to the default options of the selected image
                                         addSoundToImgName(this.last_element_under_mouse["img_name"], filename);
+                                        // Make it the selected option for the current element
                                         this.placedObjects[this.placedObjects.length-1]["selected_sound"] = filename;
                                         }).bind(this);
     }
 
+    // --------------------------------------------- MENU EVENT HANDLERS --------------------------------------------------
+
     _on_assign_sound_mouse_out(event){
+        /* Remove all the content of the dropdown sound menu on mouseout */
         if(event.toElement.id !== assignSoundButtonID){
             this.removeMenuContent(this.assignSoundMenu);
         }
     }
 
-
     _on_menu_img_mouse_down(event, idx, base_dimension = 0.2){
-        /* On click in a menu element */
+        /* On click in a menu element place the image on the canvas and start dragging*/
+        // Close the menu
         this.close()
+        const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
+        // Take the actual x, y position of the mouse
         const [x, y] = this.toCanvasXY(event);
+        // Take the element to the dragging element
         this.draggingElement = this.available_objects[idx]
+        // Set the x, y ratio to the actual mouse position
         this.draggingElement["x"] = x/this.canvas.height;
         this.draggingElement["y"] = y/this.canvas.width;
-        this.draggingElement["dimension_x"] = (this.draggingElement["img_element"].width/4)/Math.min(this.canvas.height, this.canvas.width);
-        this.draggingElement["dimension_y"] = (this.draggingElement["img_element"].height/4)/Math.min(this.canvas.height, this.canvas.width);
-        this.draggingElement["x_click_offset"] = 0;
-        this.draggingElement["y_click_offset"] = 0;
+        // Get the x and y dimension as base_dimension for the longer axis and mantaining the aspect ratio for the shorter one 
+        [this.draggingElement["dimension_x"], this.draggingElement["dimension_y"]] = this.get_dimension_x_y_for_image(this.draggingElement["img_element"], base_dimension)
+        // Set the mouse offsets to place drag the image from its center
+        this.draggingElement["x_click_offset"] = this.draggingElement["dimension_x"]*canvas_min_dim/2;
+        this.draggingElement["y_click_offset"] = this.draggingElement["dimension_y"]*canvas_min_dim/2;
+        // Prevent next click event
         this.prevent_next_click = true;
+        // Set this element as the last element clciked, in order to manage future events 
         this.last_element_under_mouse = this.draggingElement   
     }
 
-    isMouseAtObjectCorner(event, objecToCheck, allowed_error = 15){
+    // ----------------------------------------------- ELEMENT IN CANVAS UTILS ----------------------------------------------
+
+    get_dimension_x_y_for_image(img_element, max_dimension = 0.2){
+        /* Gets the dimension x, y for an image. Sizing as max_dimension the longer axis and mantaining the aspect ratio for the shorter one*/
+        let x_dimension, y_dimension, ratio;
+        // get the canvas minimum dimension as all the percentage will be in base to it (for maintaining coherence on window resinzing)
+        const canvas_min_dim = Math.min(this.canvas.width, this.canvas.height);
+        // If width is the longer axis
+        if (img_element.width > img_element.height){
+            // Set width as max_dimension
+            x_dimension = max_dimension;
+            // Calculate its ratio
+            ratio = x_dimension/(img_element.width/canvas_min_dim);
+            // Apply this ratio to the height
+            y_dimension = (img_element.height/canvas_min_dim)*ratio;
+        // If height is the longer axis do the same but swapping height and width
+        } else {
+            y_dimension = max_dimension;
+            ratio = y_dimension/(img_element.height/canvas_min_dim);
+            x_dimension = (img_element.width/canvas_min_dim)*ratio;
+        }
+        return [x_dimension, y_dimension]
+    }
+
+    imgWidthHeightFromPercentage(dimension_x=0.2, dimension_y=0.2){
+        /*Maintain aspect ratio. Percentage is applied on the shorter axis of the canvas. Dimensions x and y always respond to a square with the size of the lower axis*/
+        const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
+        return [dimension_x*canvas_min_dim, dimension_y*canvas_min_dim];
+    }
+
+    to_positive_coordinates(x, y, width, height){
+        /* When height or width are negatives (usually on mirroring), transform them to the correspondent positive coordinates */
+        // If width is negative
+        if (width < 0){
+            width = -width;
+            x = x-width;
+        }
+        // If height is negative 
+        if (height < 0){
+            height = -height;
+            y = y - height;
+        }
+        return [x, y, width, height]
+    }
+
+    objectUnderMouse(event){
+        /* Returns the correspondent object under the mouse and its index. Or null and -1 if there is no object behind. */
         const [x, y] = this.toCanvasXY(event);
+        // For each element placed at the canvas
+        for (const [i, element] of Object.entries(this.placedObjects)){
+            const xBox = element.x*this.canvas.width;
+            const yBox = element.y*this.canvas.height;
+            const [widthBox, heightBox] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"]);
+            // Check if it is under the mouse
+            if(x > xBox && x <= xBox + widthBox && y > yBox && y <= yBox + heightBox){
+                return [element, i];
+            }
+        }
+        return [null, -1];    
+    }
+
+    isMouseAtObjectCorner(event, objecToCheck, allowed_error = 15){
+        /* Decide if the mouse is located at the corner/side of ObjectToCheck or not */
+        // Get the X, Y coordinates of the mosue
+        const [x, y] = this.toCanvasXY(event);
+        // Get the x, Y coordinaetes of the element
         const [xBox, yBox] = [objecToCheck.x*this.canvas.width, objecToCheck.y*this.canvas.height];
+        // Get the width, height of the element
         const [width, height] = this.imgWidthHeightFromPercentage(objecToCheck["dimension_x"], objecToCheck["dimension_y"]);
+        // Check if mouse is at any corner or side
         // ------------------ TOP-LEFT CORNER ---------------------
         if (x-allowed_error < xBox && x+allowed_error > xBox &&
                  y-allowed_error < yBox && y+allowed_error > yBox){
@@ -444,19 +522,16 @@ class Context {
         }
     }
 
-    imgWidthHeightFromPercentage(dimension_x=0.2, dimension_y=0.2){
-        /*Maintain aspect ratio. Percentage is applied on the shorter axis of the canvas. Dimensions x and y always respond to a square with the size of the lower axis*/
-        const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
-        return [dimension_x*canvas_min_dim, dimension_y*canvas_min_dim];
-    }
-
     XYWidthHeightFromResizing(event, resizingPlace, draggingElement){
-        /* TODO: AVOID OR SOLVE PROBLEM WITH X,Y negatives (mirroring) */
+        /* Gets the new x, y, width and height dimensions for the current resizing*/
+        // Set the variables
         const [mouseX, mouseY] = this.toCanvasXY(event);
         let x, y, width, height, x_new_dimension, y_new_dimension, increment, newWidth, newHeight, oldWidth, oldHeight; 
         const [dimension_x, dimension_y] = [draggingElement["dimension_x"], draggingElement["dimension_y"]];
         const canvas_min_dim = Math.min(this.canvas.height, this.canvas.width);
         [x, y] = [draggingElement.x*this.canvas.width, draggingElement.y*this.canvas.height];
+        
+        // For each kind of resizing apply the correspondent calculations
         switch(resizingPlace){
             // ------------------ BOTTOM-RIGHT CORNER ---------------------
             case "se":
@@ -546,37 +621,29 @@ class Context {
         return [x, y, width, height];
     }
 
+    drawCanvas(){
+        /* Re-draw all the current objects of the canvas */
+        this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawCurrentObjects();
+        this.canvasContext.fill();
+    }
+
+    drawCurrentObjects(){
+        /* Draws all the current placed objects in the canvas (fill() is not called. It should be called before)*/
+        // For each object
+        for (const element of this.placedObjects){
+            // Get its coordinates
+            const x = element.x*this.canvas.width;
+            const y = element.y*this.canvas.height;
+            const [width, height] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"]);
+            // Draw the object
+            this.canvasContext.drawImage(element["img_element"], x, y, width, height);
+        }
+    }
+
     toCanvasXY(event){
         /* Get X, Y position from event, transformed to canvas coordinates */
         return [event.clientX-this.canvas.offsetLeft, event.clientY-this.canvas.offsetTop]
     }
 
-    objectUnderMouse(event){
-        /* Returns the correspondent object under the mouse and its index. Or null if there is no object behind. */
-        const [x, y] = this.toCanvasXY(event);
-        for (const [i, element] of Object.entries(this.placedObjects)){
-            const xBox = element.x*this.canvas.width;
-            const yBox = element.y*this.canvas.height;
-            const [widthBox, heightBox] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"]);
-            if(x > xBox && x <= xBox + widthBox && y > yBox && y <= yBox + heightBox){
-                return [element, i];
-            }
-        }
-        return [null, 0];
-        
-    }
-    drawCanvas(){
-        this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawCurrentObjects();
-        this.canvasContext.fill();
-    }
-    drawCurrentObjects(){
-        /*  Draws all the current placed objects in the canvas (fill() is not called. It should be called before)*/
-        for (const element of this.placedObjects){
-            const x = element.x*this.canvas.width;
-            const y = element.y*this.canvas.height;
-            const [width, height] = this.imgWidthHeightFromPercentage(element["dimension_x"], element["dimension_y"]);
-            this.canvasContext.drawImage(element["img_element"], x, y, width, height);
-        }
-    }
 }
