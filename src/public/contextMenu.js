@@ -1,6 +1,6 @@
 
 class Context {
-    constructor(menuID, assingMenuID, assignSoundID, canvasID, canvasScreenPercentage = 0.9) {
+    constructor(menuID, assingMenuID, assignSoundID, canvasID, canvasScreenPercentageHeight = 0.875, canvasScreenPercentageWidth = 0.95) {
         // -------------------- INITIALIZE ELEMENTS -----------------------
         this.menu = document.getElementById(menuID);
         this.assignMenu = document.getElementById(assingMenuID);
@@ -19,7 +19,8 @@ class Context {
         window.onresize = this.set_canvas_width_height.bind(this);
         
         // ---------------  INITIALIZE INTERNAL VARIABLES ----------------
-        this.canvasScreenPercentage = canvasScreenPercentage
+        this.canvasScreenPercentageHeight = canvasScreenPercentageHeight
+        this.canvasScreenPercentageWidth = canvasScreenPercentageWidth
         this.available_objects = []
         this.placedObjects = []
         this.keepAspectRatio = true;
@@ -37,12 +38,13 @@ class Context {
     
     set_canvas_width_height(){
         /* Resize the canvas bitmap height and width keeping the drawn objects*/
-        this.canvas.height = window.innerHeight*this.canvasScreenPercentage;
-        this.canvas.width = window.innerWidth*this.canvasScreenPercentage;
+        this.canvas.height = window.innerHeight*this.canvasScreenPercentageHeight;
+        this.canvas.width = window.innerWidth*this.canvasScreenPercentageWidth;
         // Draw the objects that were there
         this.drawCurrentObjects(); 
         this.canvasContext.fill()
     }
+
     // --------------------------------------------------------- EVENT HANDLERS ---------------------------------------------------------
     _on_document_left_click(event){
         // Prevent those cases when click must be prevent (for example, after dragging)
@@ -157,14 +159,19 @@ class Context {
                 this.draggingElement["dimension_y"] = height/Math.min(this.canvas.height, this.canvas.width);
             // Or its new X, Y coordinates if dragged 
             } else {
+                console.log(event);
                 [x, y] = this.toCanvasXY(event);
-                [x, y] = [(x-this.draggingElement["x_click_offset"]), (y-this.draggingElement["y_click_offset"])];
+                if ("x_click_offset" in this.draggingElement && "y_click_offset" in this.draggingElement){
+                    [x, y] = [(x-this.draggingElement["x_click_offset"]), (y-this.draggingElement["y_click_offset"])];
+                }
             }
             // Transform the x,y coordinates to a percentage
             const xPercentage = x/this.canvas.width;
             const yPercentage = y/this.canvas.height;
             delete this.draggingElement["x_click_offset"]; delete this.draggingElement["y_click_offset"];
+            console.log("Placed Objects Before", this.placedObjects)
             this.placedObjects.push({...this.draggingElement, "x" : xPercentage, "y" : yPercentage});
+            console.log("Placed Objects Post", this.placedObjects)
             //------- ERASE IT FROM THE INTERNAL VARIABLES -------
             this.draggingElement = null;
             this.resizingPlace = null;
@@ -203,7 +210,7 @@ class Context {
         this.fill_assign_sound_menu();
         const current_assign_menu_dim = this.assignMenu.getBoundingClientRect();
         this.assignSoundMenu.style.display = "block";
-        this.assignSoundMenu.style.marginLeft = (current_assign_menu_dim.right-this.canvas.offsetLeft)+'px';
+        this.assignSoundMenu.style.marginLeft = (current_assign_menu_dim.right-this.canvas.offsetLeft*2)+'px';
         this.assignSoundMenu.style.marginTop = current_assign_menu_dim.y+'px';
     }
 
@@ -373,12 +380,12 @@ class Context {
         // Simulate a click on the <input type="file" class="uploader"> element
         const inputElement = document.getElementById('uploader');
         inputElement.accept = acceptedAudio;
-        inputElement.click()
+        inputElement.click();
 
         // Attach the logic to the onchange method, for executing it when the user selects a file
         inputElement.onchange = (() => {const filename =  inputElement.files[0].name.substring(0, inputElement.files[0].name.length-".mp3".length)
                                         // Create the Audio object and attach it to its name
-                                        addMp3(filename, URL.createObjectURL(inputElement.files[0]));
+                                        addMp3(filename, inputElement.files[0]);
                                         // Append it to the default options of the selected image
                                         addSoundToImgName(this.last_element_under_mouse["img_name"], filename);
                                         // Make it the selected option for the current element

@@ -34,12 +34,18 @@
 </div>
 <div class="context-menu" id="AssignSound">
 </div>
+<footer>
+  <button class="btn bottom-large-button" type="button" onclick='onTemplateFinished()'>
+    <span class="btn_text">Play</span>
+  </button>
+</footer>
   <input type='file' id='uploader' style='display:none;'>
+<script src="https://cdn.rawgit.com/localForage/localForage/4ce19202/dist/localforage.min.js"></script>
 <script src='resources/resourceCorrespondence.js'></script>
-    <script src="contextMenu.js"></script>
+<script src="contextMenu.js"></script>
+<script src="preparePlay.js"></script>
     <script>
         const context = new Context("FiguresMenu", "AssignMenu", "AssignSound", "menuContainer");
     </script>
-
 </body>
 </html>

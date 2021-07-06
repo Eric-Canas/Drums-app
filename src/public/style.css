@@ -24,8 +24,8 @@ p { /*For adding footers*/
 .cnvs {
   display:block;
   position:absolute;
-  top: 5%;
-  left: 5%;
+  top: 2.5%;
+  left: 2.5%;
   background-color: white;
 }
 
@@ -135,6 +135,21 @@ p { /*For adding footers*/
   position: relative;
 }
 
+
+.bottom-large-button {
+  height: 7.5%;
+  width: 80%;
+  position : absolute;
+  bottom: 1%;
+  left: 10%;
+  right: 10%;
+  align-items: center; 
+}
+.bottom-large-button:hover {
+  width: 82%;
+  left:9%
+}
+
 .header {
   position:relative;
   background: linear-gradient(60deg, rgba(255, 210, 97,1) 0%, rgba(255, 204, 77,1) 100%);
@@ -199,5 +214,15 @@ p { /*For adding footers*/
     .context-menu img{
       margin: 0.25em;
       width: 8em;
+    }
+
+    .bottom-large-button {
+      height: 7.5%;
+      width: 80%;
+    }
+    .bottom-large-button:hover {
+      background-color: #706c6a;
+      width: 82%;
+      left:9%
     }
 }
