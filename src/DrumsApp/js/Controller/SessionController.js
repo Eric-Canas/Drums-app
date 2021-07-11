@@ -14,10 +14,8 @@
  import {WebcamController} from "../Controller/WebcamController.js";
  import {WebcamCanvas} from "../View/WebcamCanvas.js";
  import {MovementStateController} from "../Controller/MovementStateController.js";
- import {FrequencyChart} from "../View/FrequencyChart.js";
- import {PosePainter} from "../Helpers/PosePainter.js";
  import {HandPoseController} from "../Controller/HandPoseController.js";
- import {SoundInterface} from './SoundInterface.js'
+ import {SoundBoxes} from './SoundBoxes.js'
 
  class SessionController{
     //To avoid the creation of diverse SessionControllers, it is a singleton
@@ -29,16 +27,13 @@
         } else {
             // --------------------------- VIEWS ---------------------------------------
             this.webcamCanvas = new WebcamCanvas();
-            this.frequencyChart = new FrequencyChart();
             // // ---------------------- CONTROLLERS -----------------------------------
             this.webcamController = new WebcamController();
-            this.soundInterface = new SoundInterface();
-            this.movementStateController = new MovementStateController(this.soundInterface);
-            //this.posePainter = new PosePainter(this.webcamCanvas, this.movementStateController);
+            this.soundBoxes = new SoundBoxes(this.webcamCanvas);
+            this.movementStateController = new MovementStateController(this.soundBoxes);
             // ------------------- CREATE HANDS DETECTION NETWORK -----------------------
-            this.onDetectionCallbacks = [this.frequencyChart.updateChart.bind(this.frequencyChart), this.movementStateController.updateState.bind(this.movementStateController)]
+            this.onDetectionCallbacks = [this.movementStateController.updateState.bind(this.movementStateController)]
             this.handPoseController = new HandPoseController(this.webcamController, this.onDetectionCallbacks);
-            //this.handPoseController.callbacksOnPoseCaptured.push(this.posePainter.drawPose.bind(this.posePainter));
             
             this.constructor.instance = this
         }

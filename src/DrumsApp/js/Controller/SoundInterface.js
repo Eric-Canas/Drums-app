@@ -1,23 +1,23 @@
-import {AUDIO_FILES, MAXIMUM_SIMULTANEOUS_AUDIOS_PER_INSTRUMENT, MAX_FREQUENCY_IN_FRAMES} from '../Model/Constants.js'
+import {AUDIO_FILES, MAXIMUM_SIMULTANEOUS_AUDIOS_PER_INSTRUMENT} from '../Model/Constants.js'
 class SoundInterface{
-    constructor(soundFiles = AUDIO_FILES){
-        this.audios = {};
-        for (const [name, file] of Object.entries(soundFiles)){
-            const audio = new Audio(file);
-            audio.onplay = () => {this.audios[name].shift();}
-            audio.onended = () => {this.audios[name].push(audio);}
-            this.audios[name] = [audio];
+    constructor(soundBoxes){
+        this.audios = [];
+        for (const [idx, obj] of Object.entries(soundBoxes)){
+            const audio = obj["audio"];
+            audio.onplay = () => {this.audios[idx].shift();}
+            audio.onended = () => {this.audios[idx].push(audio);}
+            this.audios[idx] = [audio];
             for(let i=0; i < MAXIMUM_SIMULTANEOUS_AUDIOS_PER_INSTRUMENT-1; i++){
-                const audio2 = new Audio(file);
-                audio2.onplay = () => {this.audios[name].shift();}
-                audio2.onended = () => {this.audios[name].push(audio2);}
-                this.audios[name].push(audio2);
+                const audio2 = audio.cloneNode(true);
+                audio2.onplay = () => {this.audios[idx].shift();}
+                audio2.onended = () => {this.audios[idx].push(audio2);}
+                this.audios[idx].push(audio2);
             }
         }
     }
 
-    async playSound(key='hihat'){
-        this.audios[key][0].play();
+    async playSound(idx){
+        this.audios[idx][0].play();
     }
 }
 export {SoundInterface};

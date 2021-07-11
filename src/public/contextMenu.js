@@ -159,7 +159,6 @@ class Context {
                 this.draggingElement["dimension_y"] = height/Math.min(this.canvas.height, this.canvas.width);
             // Or its new X, Y coordinates if dragged 
             } else {
-                console.log(event);
                 [x, y] = this.toCanvasXY(event);
                 if ("x_click_offset" in this.draggingElement && "y_click_offset" in this.draggingElement){
                     [x, y] = [(x-this.draggingElement["x_click_offset"]), (y-this.draggingElement["y_click_offset"])];
@@ -169,9 +168,7 @@ class Context {
             const xPercentage = x/this.canvas.width;
             const yPercentage = y/this.canvas.height;
             delete this.draggingElement["x_click_offset"]; delete this.draggingElement["y_click_offset"];
-            console.log("Placed Objects Before", this.placedObjects)
             this.placedObjects.push({...this.draggingElement, "x" : xPercentage, "y" : yPercentage});
-            console.log("Placed Objects Post", this.placedObjects)
             //------- ERASE IT FROM THE INTERNAL VARIABLES -------
             this.draggingElement = null;
             this.resizingPlace = null;

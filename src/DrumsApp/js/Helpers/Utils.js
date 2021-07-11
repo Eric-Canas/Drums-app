@@ -1,4 +1,4 @@
-import {INVERT_Y_AXIS, NOISE_KERNEL, RELEVANT_MARK} from '../Model/Constants.js'
+import {INVERT_Y_AXIS, NOISE_KERNEL} from '../Model/Constants.js'
 function mapValue(x, in_min, in_max, out_min = 0, out_max = 1) {
   x = x < in_min? in_min : x;
   x = x > in_max? in_max : x;
@@ -12,17 +12,6 @@ function pathJoin(parts, sep){
   return parts.join(separator).replace(replace, separator);
 }
 
-
-function getRelevantPoseInfo(handPoses, invertYAxis = INVERT_Y_AXIS){
-  let hands = {};
-  for (const [label, hand] of Object.entries(handPoses)){
-      hands[label] = invertYAxis? 1-hand[RELEVANT_MARK][1] : hand[RELEVANT_MARK][1] //1 is y.
-  }
-  
-  return hands;
-}
-
-export{getRelevantPoseInfo};
 
 function getHandsForTraining(handPoses, invertYAxis = INVERT_Y_AXIS){
   let hands = {};
@@ -41,7 +30,7 @@ export{getHandsForTraining};
 
 function isPointInRect(x, y, box){
     //Box is organized as x, y, height, width
-  const [xBox, yBox, heightBox, widthBox] = box;
+  const [xBox, yBox, widthBox, heightBox] = box;
 
   return x > xBox && x <= xBox + widthBox &&
                y > yBox && y <= yBox + heightBox;

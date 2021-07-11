@@ -1,0 +1,22 @@
+* {
+  margin:0;
+  padding:0; 
+} 
+
+.webcam {
+  display:block;
+  position:absolute;
+  top: 2.5%;
+  left: 2.5%;
+  width: 95%;
+  height: 95%;
+  background-color: transparent;
+}
+
+video
+{
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+}
+

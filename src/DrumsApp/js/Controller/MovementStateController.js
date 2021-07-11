@@ -1,15 +1,13 @@
 import {HIT_WINDOW, RIGHT, LEFT, ROUGH_EPSION, MIN_TOP_TO_BOTTOM_HIT_DISTANCE} from "../Model/Constants.js";
 import {HitNet} from "../Model/HitNet.js"
-import {SoundBoxes} from "../Controller/SoundBoxes.js"
 
 class MovementStateController{
-    constructor(soundInterface, onStateUpdatedCallbacks = []){
+    constructor(soundBoxes, onStateUpdatedCallbacks = []){
         this.maxQueueLength = HIT_WINDOW;
         this.HitNet = new HitNet();
-        this.soundBoxes = new SoundBoxes();
         this.handTrack = {}; this.handTrack[RIGHT] = []; this.handTrack[LEFT] = [];
         this.withoutDetections = {}; this.withoutDetections[RIGHT] = 0; this.withoutDetections[LEFT] = 0;
-        this.soundInterface = soundInterface;
+        this.soundBoxes = soundBoxes;
         this.onStateUpdatedCallbacks = onStateUpdatedCallbacks;
     }
 
@@ -37,9 +35,14 @@ class MovementStateController{
 
     async isHit(hand, sound='hihat'){  
        const array = this.handTrack[hand];
-       if(this.HitNet.isHit(array)){
+       // Check if the hand was inside a hittable box at any part of the sequence.
+       const hitted_sound_box = this.soundBoxes.hittedSoundBox(array);
+       // If entered on a box, run hitNet to verify if the sequence is a hit. (Assume that checking hitted boxes is faster than run the network)
+       if (hitted_sound_box !== null && this.HitNet.isHit(array)){
+            //Empty the sequence for avoiding multiple repeated hits
+            console.log(hitted_sound_box);
             this.handTrack[hand] = [];
-            this.soundInterface.playSound(sound);
+            this.soundBoxes.playSound(hitted_sound_box);
             return true;
        }else{
            return false;

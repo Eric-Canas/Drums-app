@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+                      <!----------- Imports ------------>
+  <!-- Load Charts.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <!-- Load TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.0.0/dist/tf.min.js"></script>
+  <!-- Load Mathjs -->
+  <script src="https://unpkg.com/mathjs@9.2.0/lib/browser/math.js"> </script>
+  <link rel="stylesheet" href="./playScreen.css">
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <input type="file" id="json" name="TheJSON">
+  <input type="file" id="bin" name="TheBin">
+  <video id= "webcamFrame" class="webcam"  autoplay="true" height="960" width="1280"> </video>
+  <canvas id="webcamCanvas" class="webcam" height="1920" width="2560"></canvas>
+  <script src="https://cdn.rawgit.com/localForage/localForage/4ce19202/dist/localforage.min.js"></script>
+  <script src="preparePlay.js"></script>
+  <script type = "module" src="../DrumsApp/js/main.js"></script>
+</body>
+
+</html>
