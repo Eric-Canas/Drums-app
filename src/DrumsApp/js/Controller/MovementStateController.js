@@ -19,7 +19,7 @@ class MovementStateController{
                 this.handTrack[hand].push(fullHands[hand].flat());
                 if (this.handTrack[hand].length > this.maxQueueLength) {
                     this.handTrack[hand].shift();
-                    this.isHit(hand, 'hihat');
+                    this.isHit(hand);
                 }
                 this.withoutDetections[hand] = 0;
             } else {
@@ -33,15 +33,14 @@ class MovementStateController{
     }
 
 
-    async isHit(hand, sound='hihat'){  
+    async isHit(hand){  
        const array = this.handTrack[hand];
        // Check if the hand was inside a hittable box at any part of the sequence.
        const hitted_sound_box = this.soundBoxes.hittedSoundBox(array);
        // If entered on a box, run hitNet to verify if the sequence is a hit. (Assume that checking hitted boxes is faster than run the network)
        if (hitted_sound_box !== null && this.HitNet.isHit(array)){
             //Empty the sequence for avoiding multiple repeated hits
-            console.log(hitted_sound_box);
-            this.handTrack[hand] = [];
+            this.handTrack[hand] = []; //Well keep at least the last one for faster regeneration
             this.soundBoxes.playSound(hitted_sound_box);
             return true;
        }else{

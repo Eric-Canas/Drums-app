@@ -1,4 +1,4 @@
-import {INVERT_Y_AXIS, NOISE_KERNEL} from '../Model/Constants.js'
+import {INVERT_Y_AXIS, INVERT_X_AXIS, NOISE_KERNEL} from '../Model/Constants.js'
 function mapValue(x, in_min, in_max, out_min = 0, out_max = 1) {
   x = x < in_min? in_min : x;
   x = x > in_max? in_max : x;
@@ -28,7 +28,8 @@ function getHandsForTraining(handPoses, invertYAxis = INVERT_Y_AXIS){
 
 export{getHandsForTraining};
 
-function isPointInRect(x, y, box){
+function isPointInRect(x, y, box, invertX = INVERT_X_AXIS){
+  x = invertX? 1-x : x;
     //Box is organized as x, y, height, width
   const [xBox, yBox, widthBox, heightBox] = box;
 

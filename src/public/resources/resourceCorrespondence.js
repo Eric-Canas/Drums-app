@@ -1,9 +1,11 @@
 let iconCorrespondeces = [{"img_name" : 'drum.png',
                              "sounds" : ['bum', 'bom', 'bam'],
-                             "default_sound" : "bum"},
+                             "default_sound" : "bum",
+                             "second_img" : null},
                              {"img_name" : 'hihat.png',
-                             "sounds" : ['hihat', 'tssss'],
-                              "default_sound" : "hihat"}
+                              "sounds" : ['hihat', 'tssss'],
+                              "default_sound" : "hihat",
+                              "second_img" :null}
                          ];
 
 const assignSoundButtonID = "AssingSoundButton";
@@ -14,8 +16,10 @@ const acceptedAudio = "audio/mp3";
 const assignOptions = [{"name" : "Delete", "events" : {"click" : deleteCallback}},
                         {"name" : "Copy", "events" : {"click" : copyElement}}, 
                         {"name" : "Assign Sound", "events" : {"click" : openAssignSoundMenuClick, "mouseenter" : openAssignSoundMenuEnter,
-                        "mouseout" : assignMenuOnMouseOut}, "assignID" : assignSoundButtonID}];
-let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'drum1.mp3', 'tssss' : 'drum1.mp3'};
+                        "mouseout" : assignMenuOnMouseOut}, "assignID" : assignSoundButtonID},
+                        {"name" : "Assign Second Image", "events" : {"click" : assignSecondImage}}];
+
+                        let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'drum1.mp3', 'tssss' : 'drum1.mp3'};
 let chargedSounds = {};
 
 function addSoundToImgName(img_name, soundName){
@@ -25,6 +29,10 @@ function addSoundToImgName(img_name, soundName){
             break;
         }
     }
+}
+
+function assignSecondImage() {
+    this.uploadSecondImage();
 }
 
 function deleteCallback(event){

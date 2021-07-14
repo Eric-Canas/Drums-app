@@ -8,7 +8,6 @@ async function save_template(){
         await save_at_local_forage(idx, object);
     }
     window.location.replace("play.html");
-    console.log(await charge_template());
 }
 
 async function charge_template(){
@@ -21,6 +20,12 @@ async function charge_template(){
             img.src = charge_src(element["img_src"]);
             element["img"] = img;
             element["audio"] = new Audio(charge_src(element["selected_sound_src"]));
+            if (element["second_img"] !== null){
+                console.log(element["second_img"])
+                const second_img = document.createElement('img');
+                second_img.src = charge_src(element["second_img"]);
+                element["second_img"] = second_img;
+            }
             template_elements.push(element);
         }
     }
@@ -29,7 +34,7 @@ async function charge_template(){
 
 function charge_src(src){
     //TODO: Manage it better
-    if (typeof(src) == 'string'){
+    if (typeof(src) === 'string'){
         return 'resources/'+src
     } else {
         return URL.createObjectURL(src)
@@ -38,6 +43,6 @@ function charge_src(src){
 
 async function save_at_local_forage(name, object){
     let data_to_save = {"img_src" : object["img_name"], "selected_sound_src" : soundCorrespondences[object["selected_sound"]], "x" : object["x"],
-                        "y" : object["y"], "dimension_x" : object["dimension_x"], "dimension_y" : object["dimension_y"]};
+                        "y" : object["y"], "dimension_x" : object["dimension_x"], "dimension_y" : object["dimension_y"], "second_img" : object["second_img"]};
     await localforage.setItem(`${name}`, data_to_save);
 }

@@ -12,6 +12,13 @@
   height: 95%;
   background-color: transparent;
 }
+.cnvs {
+  display:block;
+  position:absolute;
+  background-color: transparent;
+}
+
+
 
 video
 {

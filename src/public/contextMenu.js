@@ -246,7 +246,7 @@ class Context {
             imgElement.onmousedown = ((event) => this._on_menu_img_mouse_down(event, i)).bind(this);
             // Adds its content to the array of available objects for accessing to it later
             this.available_objects.push({"img_name" : img_name, "img_element" : imgElement, "sounds" : entry["sounds"],
-                                         "selected_sound" : entry["default_sound"]});
+                                         "selected_sound" : entry["default_sound"], 'second_img' : entry["second_img"]});
             // Finally, append the element to the menu
             this.menu.appendChild(imgElement);
 
@@ -388,6 +388,17 @@ class Context {
                                         // Make it the selected option for the current element
                                         this.placedObjects[this.placedObjects.length-1]["selected_sound"] = filename;
                                         }).bind(this);
+    }
+
+    uploadSecondImage(){
+        /* Allows the user to upload an audio, and attaches it to the current element */
+        // Simulate a click on the <input type="file" class="uploader"> element
+        const inputElement = document.getElementById('uploader');
+        inputElement.accept = acceptedImgTypes;
+        inputElement.click();
+
+        // Attach the logic to the onchange method, for executing it when the user selects a file
+        inputElement.onchange = (() => {this.placedObjects[this.placedObjects.length-1]["second_img"] = inputElement.files[0];}).bind(this);
     }
 
     // --------------------------------------------- MENU EVENT HANDLERS --------------------------------------------------

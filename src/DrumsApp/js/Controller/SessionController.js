@@ -25,12 +25,14 @@
         if (this.constructor.instance){
             return instance
         } else {
-            // --------------------------- VIEWS ---------------------------------------
-            this.webcamCanvas = new WebcamCanvas();
-            // // ---------------------- CONTROLLERS -----------------------------------
+            // ----------------------- WEBCAM CONTROLLER -------------------------------
             this.webcamController = new WebcamController();
+            // --------------------------- VIEWS ---------------------------------------
+            this.webcamCanvas = new WebcamCanvas(this.webcamController);
+            // ------------------------- CONTROLLERS -----------------------------------
             this.soundBoxes = new SoundBoxes(this.webcamCanvas);
             this.movementStateController = new MovementStateController(this.soundBoxes);
+            
             // ------------------- CREATE HANDS DETECTION NETWORK -----------------------
             this.onDetectionCallbacks = [this.movementStateController.updateState.bind(this.movementStateController)]
             this.handPoseController = new HandPoseController(this.webcamController, this.onDetectionCallbacks);
