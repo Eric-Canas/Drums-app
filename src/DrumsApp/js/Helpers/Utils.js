@@ -1,4 +1,11 @@
-import {INVERT_Y_AXIS, INVERT_X_AXIS, NOISE_KERNEL} from '../Model/Constants.js'
+import {INVERT_Y_AXIS, INVERT_X_AXIS, NOISE_KERNEL, LEFT, RIGHT, ARRAY_LEN} from '../Model/Constants.js'
+
+const argFact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
+
+const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
+const argMin = argFact((max, el) => (el[0] < max[0] ? el : max))
+
+
 function mapValue(x, in_min, in_max, out_min = 0, out_max = 1) {
   x = x < in_min? in_min : x;
   x = x > in_max? in_max : x;
@@ -12,21 +19,59 @@ function pathJoin(parts, sep){
   return parts.join(separator).replace(replace, separator);
 }
 
+var last_hands = {LEFT : new Array(ARRAY_LEN).fill((INVERT_X_AXIS? 0. : 1.)),  RIGHT : new Array(ARRAY_LEN).fill((INVERT_X_AXIS? 1. : 0.))};
 
 function getHandsForTraining(handPoses, invertYAxis = INVERT_Y_AXIS){
   let hands = {};
   if (handPoses.multiHandedness !== undefined){
     for(const [i, hand] of handPoses.multiHandedness.entries()){
-      hands[hand.label] = []
+      const label = hand.label.toUpperCase();
+      hands[label] = []
       for(const landmark of handPoses.multiHandLandmarks[i]){
-        hands[hand.label].push([landmark.x, landmark.y, landmark.z])
+        hands[label].push([landmark.x, landmark.y, landmark.z])
       }
     }
   }
+  //hands = reorderHandsByProximity(hands);
   return hands;
 }
 
 export{getHandsForTraining};
+
+function reorderHandsByProximity(new_hands){
+
+  let output = {}
+  const new_hands_length = Object.keys(new_hands).length
+  if (new_hands_length === 2){
+    const left_hand = new_hands[LEFT].flat();
+    const right_hand = new_hands[RIGHT].flat();
+      // Get the distance to each last hand
+    const distances = [math.sum(math.abs(math.subtract(left_hand, last_hands[LEFT]))), math.sum(math.abs(math.subtract(left_hand, last_hands[RIGHT]))),
+                 math.sum(math.abs(math.subtract(right_hand, last_hands[LEFT]))), math.sum(math.abs(math.subtract(right_hand, last_hands[RIGHT])))];
+    const best_prediction = argMin(distances);
+    switch (best_prediction){
+      case 0:
+      case 3:
+        output = {LEFT : new_hands[LEFT], RIGHT : new_hands[RIGHT]};
+        last_hands = {LEFT : left_hand, RIGHT : right_hand};
+        break;
+      case 1:
+      case 2:
+        output = {RIGHT : new_hands[LEFT], LEFT : new_hands[RIGHT]};
+        last_hands = {RIGHT : left_hand, LEFT : right_hand};
+        break;
+    }
+  } else if (new_hands_length === 1){
+    const hand = Object.values(new_hands)[0];
+    const flat_hand = hand.flat()
+    const distance_to_left = math.sum(math.abs(math.subtract(flat_hand, last_hands[LEFT])));
+    const distance_to_right = math.sum(math.abs(math.subtract(flat_hand, last_hands[RIGHT])));
+    const closest_hand = distance_to_left < distance_to_right? LEFT : RIGHT;
+    output[closest_hand] = hand;
+    last_hands[closest_hand] = flat_hand; 
+  }
+  return output;
+}
 
 function isPointInRect(x, y, box, invertX = INVERT_X_AXIS){
   x = invertX? 1-x : x;

@@ -9,13 +9,13 @@ def build_hitnet(n_steps=N_STEPS, n_features=N_FEATURES, output_size = OUTPUT_SI
     for i in range(lstm_layers-1):
         model.add(LSTM(hidden_size, activation='relu'))
     """
+    """
     if dropout > 0.:
         model.add(Dropout(dropout))
+    model.add(Dense(n_features//2))
     """
-    #model.add(Dense(hidden_size/2))
-    #if dropout > 0.:
-        #model.add(Dropout(dropout))
-    """
+    if dropout > 0.:
+        model.add(Dropout(dropout))
     model.add(Dense(output_size))
     model.add(Activation('sigmoid'))
     return model

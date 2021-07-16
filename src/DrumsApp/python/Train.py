@@ -2,7 +2,7 @@ from HitDataset import HitDataset
 from models.HitNet import build_hitnet
 from keras.callbacks import ModelCheckpoint
 from keras.models import load_model
-from utils.Callbacks import PlotingCallback, ConfusionMatrix, RocAndPRCurvesCallback
+from utils.Callbacks import PlotingCallback, ConfusionMatrix, RocAndPRCurvesCallback, saveTFJS
 import os
 from utils.Losses import loss
 from utils.constants import *
@@ -19,14 +19,15 @@ def train(results_dir = RESULTS_DIR, epochs=EPOCHS, callbacks_period = CALLBACKS
         os.makedirs(results_dir)
     binary_accuracy = BinaryAccuracy(threshold=0.5)
     checkpoint = ModelCheckpoint(os.path.join(results_dir,"best_model.h5"), monitor='loss', verbose=1,
-                                 save_best_only=True, mode='auto', period=callbacks_period)
+                                 save_best_only=True, mode='auto', save_freq=callbacks_period)
     plotting_callback = PlotingCallback(path = results_dir, period=callbacks_period)
     confusion_matrix_callback = ConfusionMatrix(path=results_dir, train_set=train_set, val_set=val_set, period=callbacks_period)
+    tfjsSave = saveTFJS(results_dir=results_dir, period=callbacks_period)
     roc_curve = RocAndPRCurvesCallback(path=results_dir, train_set=train_set, val_set=val_set, period=callbacks_period)
     model.compile(optimizer='adam', loss=loss, metrics=['acc', binary_accuracy])
     model.fit(train_set, steps_per_epoch=len(train_set), epochs=epochs, validation_data=val_set,
               validation_steps=len(val_set), max_queue_size=20, workers=4,
-              callbacks=[checkpoint, plotting_callback, confusion_matrix_callback, roc_curve])
+              callbacks=[checkpoint, plotting_callback, confusion_matrix_callback, tfjsSave]) #,roc_curve])
     model.save(os.path.join(results_dir, 'final_model.h5'))
     model.save_weights(os.path.join(results_dir, 'weights.h5'))
 

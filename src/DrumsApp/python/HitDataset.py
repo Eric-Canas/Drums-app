@@ -13,7 +13,9 @@ class HitDataset(keras.utils.Sequence):
     def __init__(self, root_dir=DATASET_DIR, detections_before=DETECTIONS_BEFORE, detections_after=DETECTIONS_AFTER,
                  suavization_y_kernel = None, training = True, batch_size = BATCH_SIZE,
                  data_augmentation = DATA_AUGMENTATION, data_augmentation_ratio = DATA_AUGMENTATION_RATIO,
-                 x_slide=DATA_AUG_X_SLIDE_RATIO, y_slide=DATA_AUG_Y_SLIDE_RATIO,  z_slide = DATA_AUG_Z_SLIDE_RATIO):
+                 x_slide=DATA_AUG_X_SLIDE_RATIO, y_slide=DATA_AUG_Y_SLIDE_RATIO, z_slide = DATA_AUG_Z_SLIDE_RATIO,
+                 x_slight_noise=SLIGHT_NOISE_X, y_slight_noise=SLIGHT_NOISE_Y, z_slight_noise=SLIGHT_NOISE_Z,
+                 x_hard_noise=HARD_NOISE_X, y_hard_noise=HARD_NOISE_Y, z_hard_noise=HARD_NOISE_Z):
         # ----------------- ENSURE GPU USAGE -------------------------
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.force_gpu_compatible = True
@@ -47,6 +49,12 @@ class HitDataset(keras.utils.Sequence):
         self.y_slide_ratio = y_slide
         self.x_slide_ratio = x_slide
         self.z_slide_ratio = z_slide
+        self.y_slight_noise = y_slight_noise
+        self.x_slight_noise = x_slight_noise
+        self.z_slight_noise = z_slight_noise
+        self.y_hard_noise = y_hard_noise
+        self.x_hard_noise = x_hard_noise
+        self.z_hard_noise = z_hard_noise
 
     def charge_dataset(self, files, root_dir=DATASET_DIR):
         """
@@ -92,6 +100,12 @@ class HitDataset(keras.utils.Sequence):
         X = self.slide(X=X, idxs=self.all_x_positions, slide_ratio=self.x_slide_ratio)
         X = self.slide(X=X, idxs=self.all_y_positions, slide_ratio=self.y_slide_ratio)
         X = self.slide(X=X, idxs=self.all_z_positions, slide_ratio=self.z_slide_ratio)
+        X = self.hard_noise(X=X, idxs=self.all_x_positions, noise=self.x_hard_noise)
+        X = self.hard_noise(X=X, idxs=self.all_y_positions, noise=self.y_hard_noise)
+        X = self.hard_noise(X=X, idxs=self.all_z_positions, noise=self.z_hard_noise)
+        X = self.slight_noise(X=X, idxs=self.all_x_positions, noise=self.x_slight_noise)
+        X = self.slight_noise(X=X, idxs=self.all_y_positions, noise=self.y_slight_noise)
+        X = self.slight_noise(X=X, idxs=self.all_z_positions, noise=self.z_slight_noise)
         return X
 
     def horizontal_flip(self, X):
@@ -101,6 +115,17 @@ class HitDataset(keras.utils.Sequence):
         x_batch_entries[..., self.all_x_positions] = np.abs(1 - x_batch_entries[..., self.all_x_positions])
         X[batch_positions] = x_batch_entries
         return X
+
+    def slight_noise(self, X, idxs, noise):
+        noise_per_sample = np.random.uniform(low=-noise, high=noise, size=(self.batch_size, self.chain_size, len(idxs)))
+        X[..., idxs] += noise_per_sample
+        return X
+
+    def hard_noise(self, X, idxs, noise):
+        noise_per_sample = np.random.uniform(low=-noise, high=noise, size=(self.batch_size, self.chain_size, 1))
+        X[..., idxs] += noise_per_sample
+        return X
+
 
     def slide(self, X, idxs, slide_ratio):
         amount = int(np.random.uniform(low=0, high=self.data_augmentation_ratio) * self.batch_size)

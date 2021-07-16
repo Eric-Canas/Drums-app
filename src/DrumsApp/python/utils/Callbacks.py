@@ -3,6 +3,9 @@ import os
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
 import numpy as np
+import tensorflowjs as tfjs
+from utils.Losses import loss
+from keras.models import load_model
 
 class PlotingCallback(Callback):
     """
@@ -125,3 +128,14 @@ class RocAndPRCurvesCallback(Callback):
                 plt.savefig(os.path.join(path, name))
                 plt.close()
 
+class saveTFJS(Callback):
+    def __init__(self, results_dir, period=1):
+        super().__init__()
+        self.results_dir = results_dir
+        self.period = period
+    def on_epoch_end(self, epoch, logs={}):
+        if epoch % self.period == 0 and epoch != 0:
+            self.save(path=self.results_dir)
+    def save(self, path):
+        tfjs.converters.save_keras_model(load_model(os.path.join(path, "best_model.h5"), {'loss': loss}),
+                                         os.path.join(path, 'HitNetJS'))

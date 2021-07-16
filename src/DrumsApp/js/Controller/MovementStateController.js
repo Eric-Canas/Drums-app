@@ -42,6 +42,8 @@ class MovementStateController{
             //Empty the sequence for avoiding multiple repeated hits
             this.handTrack[hand] = []; //Well keep at least the last one for faster regeneration
             this.soundBoxes.playSound(hitted_sound_box);
+            console.log("Box "+hitted_sound_box+" with "+hand);
+            console.log(array);
             return true;
        }else{
            return false;
