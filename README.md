@@ -58,26 +58,26 @@ HitNet has been trained in <a href="https://keras.io/" target="_blank"><img alt=
   <li> <b>Optimizer</b>: <a href="https://deepai.org/machine-learning-glossary-and-terms/adam-machine-learning" target="_blank">Adam</a>.</li>
   <li> <b>Loss</b>: Weighted <a href="https://sparrow.dev/binary-cross-entropy/" target="_blank">Binary Cross Entropy</a>*.</li>
   <li> <b>Training/Val Split</b>: 0.85-0.15.</li>
-  <li> <b>Data Augmentation</b>:
+  <li> <b>Data Augmentation</b>: </li>
     <ul>
       <li> <b>Mirroring</b>: X axis.</li>
-      <li> <i><b>Shift</b>: Shift applied in block for the whole sequence.</i>
+      <li> <i><b>Shift</b>: Shift applied in block for the whole sequence.</i> </li>
       <ul>
       <li> <b>X Shift</b>: ±0.3.</li>
       <li> <b>Y Shift</b>: ±0.3.</li>
       <li> <b>Z Shift</b>: ±0.5.</li>
       </ul>
-      <li> <i><b>Interframe Noise</b>: Small shift applied independently to each frame of the sequence.</i>
+      <li> <i><b>Interframe Noise</b>: Small shift applied independently to each frame of the sequence.</i> </li>
       <ul>
-      <li> <b>Interframe Noise X<b>: ±0.01. </li>
-      <li> <b>Interframe Noise Y<b>: ±0.01. </li>
-      <li> <b>Interframe Noise Z<b>: ±0.0025. </li>
+      <li> <b>Interframe Noise X</b>: ±0.01. </li>
+      <li> <b>Interframe Noise Y</b>: ±0.01. </li>
+      <li> <b>Interframe Noise Z</b>: ±0.0025. </li>
       </ul>
-      <li> <i><b>Intraframe Noise</b>: Extremely small shift applied independently to each single part of a hand.</i>
+      <li> <i><b>Intraframe Noise</b>: Extremely small shift applied independently to each single part of a hand.</i> </li>
       <ul>
-      <li> <b>Intraframe Noise X<b>: ±0.0025. </li>
-      <li> <b>Intraframe Noise Y<b>: ±0.0025. </li>
-      <li> <b>Intraframe Noise Z<b>: ±0.0001. </li>
+      <li> <b>Intraframe Noise X</b>: ±0.0025. </li>
+      <li> <b>Intraframe Noise Y</b>: ±0.0025. </li>
+      <li> <b>Intraframe Noise Z</b>: ±0.0001. </li>
       </ul>
     </ul>
    </li>
