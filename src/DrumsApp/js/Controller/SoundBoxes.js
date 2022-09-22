@@ -35,7 +35,7 @@ class SoundBoxes{
     drawState(){
         this.canvas.clearCanvas();
         for(const box of this.boxes){
-            const img = box["hitted"]? box["second_img"] : box["img"];
+            const img = box["hitted"] && box["second_img"]? box["second_img"] : box["img"];
             this.canvas.drawImage(img, box["x"], box["y"], box["dimension_x"], box["dimension_y"]);
         }
         this.canvas.context.fill();

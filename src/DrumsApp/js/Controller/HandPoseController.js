@@ -49,9 +49,10 @@ class HandPoseController{
     /**
      * Loads posenet and assign it to this.poseNet. Then (once videoStream is loaded) starts the capturePose bucle.
      */
-    async _loadHandsNet(options = {maxNumHands: 2, minDetectionConfidence: 0.4, minTrackingConfidence: 0.2}){
+    async _loadHandsNet(options = {maxNumHands: 2, minDetectionConfidence: 0.4, minTrackingConfidence: 0.2,
+    modelComplexity : 1}){
         this.handsNet = await new Hands({locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1657299676/${file}`;
           }});
 
         this.handsNet.setOptions(options);
