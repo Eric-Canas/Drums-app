@@ -1,21 +1,21 @@
-# Drums-io
+# <a href="https://drums-app.com/" target="_blank">Drums-app</a>
 Play Drums in your Browser.
 
-Drums.io allows you to simulate in your browser any percussion instrument, by using only your Webcam. All machine learning models run locally, so no user information is sent to the server.  
+<a href="www.drums-app.com" target="_blank">Drums-app</a> allows you to simulate in your browser any percussion instrument, by using only your Webcam. All machine learning models run locally, so no user information is sent to the server.  
+
+Check the demo at <a href="https://drums-app.com/" target="_blank">drums-app.com</a>
 
 ### Quick Start
 
-Simply run the <a href="./src/index.html" target="_blank"> src/index.html </a> in server mode, or enter at <a href="www.drums.io"> drums.io </a> (soon).  
+Simply run the <a href="./src/index.html" target="_blank"> src/index.html </a> in server mode, or enter at <a href="https://drums-app.com/">drums-app.com</a>.  
 
-Select **Play** for using a prefab drums template (coming soon), or **Set Template** for building your own by uploading some images and attaching your sounds to them.
+Select **Set Template** for building your own drums template by uploading some images and attaching your sounds to them.
 
 <img alt="Set Template" title="Set Template" src="./documentation/SetTemplate.gif" height=350>
 
 Turn on your **webcam** and enjoy it!
 
 <img alt="Play!" title="Play!" src="./documentation/DrumsPlay.gif" height=350>
-
-NOTE: Until the webpage is uploaded to a host there are two buttons on top of the **Play** screen for uploading <a href="./src/DrumsApp/js/Resources/HitNetJS" target="_blank">HitNet</a> locally.
 
 # Implementation Details
 
