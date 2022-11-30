@@ -66,7 +66,7 @@ const RIGHT = "RIGHT";
 const HIT_WINDOW = 4;
 const NOISE_KERNEL = 3;
 const MIN_TOP_TO_BOTTOM_HIT_DISTANCE = 0.025;
-const IS_HIT_CONFIDENCE_THRESHOLD = 0.5;
+const IS_HIT_CONFIDENCE_THRESHOLD = 0.4;
 const HIT_NET_PATH = "http://127.0.0.1:8000/model.json"; 
                        //Thumb (x, y), Index (x, y), Middle (x, y), Ring (x, y) 
 const RELEVANT_MARKS = [[3*3, 3*3+1], [6*3, 6*3+1], [10*3, 10*3+1], [18*3, 18*3+1]];

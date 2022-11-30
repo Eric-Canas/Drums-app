@@ -19,7 +19,7 @@ const assignOptions = [{"name" : "Delete", "events" : {"click" : deleteCallback}
                         "mouseout" : assignMenuOnMouseOut}, "assignID" : assignSoundButtonID},
                         {"name" : "Assign Second Image", "events" : {"click" : assignSecondImage}}];
 
-                        let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'drum1.mp3', 'tssss' : 'drum1.mp3'};
+                        let soundCorrespondences = {'bum' : 'drum1.mp3', 'bom' : 'drum1.mp3', 'bam' : 'drum1.mp3', 'hihat' : 'hihat.mp3', 'tssss' : 'hihat.mp3'};
 let chargedSounds = {};
 
 function addSoundToImgName(img_name, soundName){
