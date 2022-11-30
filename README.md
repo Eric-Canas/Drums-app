@@ -16,6 +16,7 @@ Select **Set Template** for building your own drums template by uploading some i
 Turn on your **webcam** and enjoy it!
 
 <img alt="Play!" title="Play!" src="./documentation/DrumsPlay.gif" height=350>
+*<i>No cats were harmed during this recording</i>
 
 # Implementation Details
 
